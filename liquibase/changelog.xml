@@ -1,0 +1,91 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+     <changeSet author="Yogirajsinh Parmar" id="1">
+        <createTable tableName="users">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mobile" type="varchar(25)">
+            </column>
+            <column name="isActive" type="boolean" defaultValueComputed="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="datetime" defaultValueComputed="now()" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="datetime" defaultValueComputed="now()"/>
+        </createTable>
+        <createIndex indexName="idx_email" tableName="users">
+            <column name="email"/>
+        </createIndex>
+        <createIndex indexName="idx_isActive" tableName="users">
+            <column name="isActive"/>
+        </createIndex>
+        <rollback>
+            <dropTable tableName="users"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="2">
+        <createTable tableName="products">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="imageUrl" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(25)">
+            </column>
+                <column name="rating" type="int" defaultValueComputed="0">
+                <constraints nullable="false"/>
+            </column>
+                <column name="discount" type="int" defaultValueComputed="0">
+                <constraints nullable="false"/>
+            </column>
+                <column name="category" type="varchar(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="datetime" defaultValueComputed="now()" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="datetime" defaultValueComputed="now()"/>
+            <column name="userId" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+            baseTableName="products"
+            baseColumnNames="userId"
+            constraintName="fk_product_userId"
+            referencedTableName="users"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+        <createIndex indexName="idx_title" tableName="products">
+            <column name="title"/>
+        </createIndex>
+        <createIndex indexName="idx_category" tableName="products">
+            <column name="category"/>
+        </createIndex>
+        <rollback>
+            <dropTable tableName="products"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

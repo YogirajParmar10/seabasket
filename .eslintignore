@@ -1,0 +1,4 @@
+node_modules
+dist
+print-permissions.js
+scripts/test-login.ts
