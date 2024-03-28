@@ -154,4 +154,60 @@
             <dropTable tableName="cartItems"/>
         </rollback>
     </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="5">
+        <addUniqueConstraint
+            constraintName="pk_cartitem"
+            tableName="cartItems"
+            columnNames="productId,cartId"/>
+    </changeSet>
+   
+   <changeSet author="Yogirajsinh Parmar" id="6">
+        <createTable tableName="reviews">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="review" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="productId" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="userId" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+            baseTableName="reviews"
+            baseColumnNames="productId"
+            constraintName="fk_reviews_productId"
+            referencedTableName="products"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+        <addForeignKeyConstraint
+            baseTableName="reviews"
+            baseColumnNames="userId"
+            constraintName="fk_reviews_userId"
+            referencedTableName="users"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+        <rollback>
+            <dropTable tableName="reviews"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="7">
+        <addUniqueConstraint
+            constraintName="pk_reviews"
+            tableName="reviews"
+            columnNames="productId,userId"/>
+        <addColumn tableName="reviews">
+            <column name="createdAt" type="datetime" defaultValueComputed="now()" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="datetime" defaultValueComputed="now()"/>
+        </addColumn>
+        
+    </changeSet>
+
 </databaseChangeLog>

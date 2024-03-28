@@ -14,6 +14,14 @@ export const CartItem = sequelize.define("cartItem", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  cartId: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+  },
+  productId: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+  },
 });
 
 CartItem.belongsTo(Cart, { foreignKey: "cartId" });
