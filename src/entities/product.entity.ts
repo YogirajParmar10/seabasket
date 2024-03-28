@@ -1,8 +1,9 @@
 import { DataTypes } from "sequelize";
 
 import sequelize from "configs/db";
+import { CartItem } from "./cartItem.entity";
 
-const Product = sequelize.define("product", {
+export const Product = sequelize.define("product", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -48,4 +49,5 @@ const Product = sequelize.define("product", {
   },
 });
 
-export default Product;
+Product.hasMany(CartItem, { foreignKey: "productId" });
+CartItem.belongsTo(Product, { foreignKey: "productId" });

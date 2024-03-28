@@ -25,7 +25,8 @@ export interface DecodedIdToken {
 export interface TRequest<T = any> extends Request {
   req: any;
   params: {
-    prodId: any;
+    category: any;
+    productId: any;
     token: any;
   };
   headers: any;

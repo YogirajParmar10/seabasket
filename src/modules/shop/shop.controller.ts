@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { TRequest, TResponse } from "@types";
-import Product from "entities/product.entity";
-import { ProductByCategoryDto } from "./dto";
-import { SearchProductDto } from "./dto/search-product.dto";
+import { Product, Cart, CartItem } from "entities";
+import { ProductByCategoryDto, SearchProductDto } from "./dto";
 import { Op } from "sequelize";
 
 export class ShopController {
@@ -22,13 +21,13 @@ export class ShopController {
   };
 
   public getProductDetail = async (req: TRequest, res: TResponse, next: NextFunction) => {
-    const { prodId } = req.params;
+    const { productId } = req.params;
     try {
-      const prod = await Product.findByPk(prodId);
-      if (!prod) {
+      const product = await Product.findByPk(productId);
+      if (!product) {
         return res.status(404).json({ message: "No product found" });
       } else {
-        return res.status(200).json({ product: prod });
+        return res.status(200).json({ product: product });
       }
     } catch (err: any) {
       if (!err.statusCode) {
@@ -39,7 +38,7 @@ export class ShopController {
   };
 
   public getProductsByCategory = async (req: TRequest<ProductByCategoryDto>, res: TResponse, next: NextFunction) => {
-    const category = req.dto.category;
+    const { category } = req.params;
 
     try {
       const products = await Product.findAll({
@@ -80,5 +79,27 @@ export class ShopController {
       }
       next(err);
     }
+  };
+  public getCart = async (req: TRequest<SearchProductDto>, res: TResponse, next: NextFunction) => {
+    const userId = req.me.id;
+
+    const userCart = await Cart.findOne({
+      where: { userId: userId },
+      include: [
+        {
+          model: CartItem,
+          include: [
+            {
+              model: Product,
+            },
+          ],
+        },
+      ],
+    });
+    if (!userCart) {
+      return { error: "Cart not found for user" };
+    }
+
+    return res.status(200).json({ Cart: userCart });
   };
 }

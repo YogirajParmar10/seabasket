@@ -14,10 +14,10 @@ export class AdminRouter extends SFRouter implements RouterDelegates {
 
   initRoutes(): void {
     this.router.get("/products", this.authMiddleware.auth, this.AdminController.getAllProducts);
-    this.router.get("/products/:prodId", this.authMiddleware.auth, this.AdminController.getProductDetail);
+    this.router.get("/product/:productId", this.authMiddleware.auth, this.AdminController.getProductDetail);
     this.router.post("/product", Validator.validate(CreateProductDto), this.authMiddleware.auth, this.AdminController.createProduct);
-    this.router.post("/products/by-category", Validator.validate(ProductByCategoryDto), this.authMiddleware.auth, this.AdminController.getProductsByCategory);
-    this.router.put("/update-product/:prodId", Validator.validate(UpdateProductDto), this.authMiddleware.auth, this.AdminController.updateProduct);
-    this.router.delete("/delete-product/:prodId", this.authMiddleware.auth, this.AdminController.deleteProduct);
+    this.router.get("/product/:category", Validator.validate(ProductByCategoryDto), this.authMiddleware.auth, this.AdminController.getProductsByCategory);
+    this.router.put("/product/:productId", Validator.validate(UpdateProductDto), this.authMiddleware.auth, this.AdminController.updateProduct);
+    this.router.delete("/product/:productId", this.authMiddleware.auth, this.AdminController.deleteProduct);
   }
 }

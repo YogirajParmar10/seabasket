@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { TRequest, TResponse } from "@types";
-import Product from "entities/product.entity";
+import { Product } from "entities";
 import { CreateProductDto, ProductByCategoryDto, UpdateProductDto } from "./dto";
 
 export class AdminController {
@@ -9,7 +9,7 @@ export class AdminController {
     const userId = req.me.id;
 
     try {
-      const prod = await Product.create({
+      const product = await Product.create({
         title: title,
         imageUrl: imageUrl,
         price: price,
@@ -34,12 +34,8 @@ export class AdminController {
         const error = new Error("No products found!");
         throw error;
       }
-      const prod = [];
-      for (let index = 0; index < products.length; index++) {
-        prod.push(products[index].dataValues);
-      }
-      prod.sort((a, b) => a.price - b.price);
-      return res.status(200).json({ product: prod });
+
+      return res.status(200).json({ product: products });
     } catch (err: any) {
       if (!err.statusCode) {
         err.statusCode = 500;
@@ -49,13 +45,13 @@ export class AdminController {
   };
 
   public getProductDetail = async (req: TRequest, res: TResponse, next: NextFunction) => {
-    const { prodId } = req.params;
+    const { productId } = req.params;
     try {
-      const prod = await Product.findByPk(prodId);
-      if (!prod) {
+      const product = await Product.findByPk(productId);
+      if (!product) {
         return res.status(404).json({ message: "No product found" });
       } else {
-        return res.status(200).json({ product: prod });
+        return res.status(200).json({ product: product });
       }
     } catch (err: any) {
       if (!err.statusCode) {
@@ -66,7 +62,7 @@ export class AdminController {
   };
 
   public getProductsByCategory = async (req: TRequest<ProductByCategoryDto>, res: TResponse, next: NextFunction) => {
-    const category = req.dto.category;
+    const category = req.params.category;
 
     try {
       const products = await Product.findAll({
@@ -87,13 +83,13 @@ export class AdminController {
   };
 
   public updateProduct = async (req: TRequest<UpdateProductDto>, res: TResponse, next: NextFunction) => {
-    const { prodId } = req.params;
+    const { productId } = req.params;
     const { title, imageUrl, price, description, category } = req.dto;
     const userId = req.me.id;
 
-    const prod = await Product.findByPk(prodId);
+    const product = await Product.findByPk(productId);
 
-    if (prod?.dataValues.userId !== +userId!) {
+    if (product?.dataValues.userId !== +userId!) {
       return res.status(401).json({ message: "user not authorized!" });
     }
 
@@ -107,7 +103,7 @@ export class AdminController {
       },
       {
         where: {
-          id: prodId,
+          id: productId,
         },
       },
     );
@@ -118,16 +114,16 @@ export class AdminController {
   };
 
   public deleteProduct = async (req: TRequest<UpdateProductDto>, res: TResponse, next: NextFunction) => {
-    const { prodId } = req.params;
+    const { productId } = req.params;
     const userId = req.me.id;
 
-    const prod = await Product.findByPk(prodId);
+    const product = await Product.findByPk(productId);
 
-    if (prod?.dataValues.userId !== +userId!) {
+    if (product?.dataValues.userId !== +userId!) {
       return res.status(401).json({ message: "user not authorized!" });
     }
 
-    await prod?.destroy();
+    await product?.destroy();
     return res.status(200).json({ message: "Product deleted!" });
   };
 }

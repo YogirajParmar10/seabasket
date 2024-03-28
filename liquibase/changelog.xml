@@ -88,4 +88,70 @@
             <dropTable tableName="products"/>
         </rollback>
     </changeSet>
+
+    <changeSet author="Yogirajsinh Parmar" id="3">
+        <createTable tableName="carts">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="createdAt" type="datetime" defaultValueComputed="now()" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="datetime" defaultValueComputed="now()"/>
+            <column name="userId" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+            baseTableName="carts"
+            baseColumnNames="userId"
+            constraintName="fk_cart_userId"
+            referencedTableName="users"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+        <rollback>
+            <dropTable tableName="carts"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="Yogirajsinh Parmar" id="4">
+        <createTable tableName="cartItems">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="quantity" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="productId" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cartId" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="datetime" defaultValueComputed="now()" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="datetime" defaultValueComputed="now()"/>
+        </createTable>
+        <addForeignKeyConstraint
+            baseTableName="cartItems"
+            baseColumnNames="productId"
+            constraintName="fk_cartItem_productId"
+            referencedTableName="products"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+        <addForeignKeyConstraint
+            baseTableName="cartItems"
+            baseColumnNames="cartId"
+            constraintName="fk_cartItem_cartId"
+            referencedTableName="carts"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+        <rollback>
+            <dropTable tableName="cartItems"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import * as bcrypt from "bcryptjs";
 import { JwtPayload } from "jsonwebtoken";
 import { TRequest, TResponse } from "@types";
 import { User } from "entities/user.entity";
@@ -34,7 +33,7 @@ export class AuthController {
     const mobile = req.dto.mobile;
 
     try {
-      const hashedPass: string = await bcrypt.hash(password, 12);
+      const hashedPass: string = await Bcrypt.hash(password);
       const user = await User.create({
         email: email,
         name: name,
@@ -63,14 +62,13 @@ export class AuthController {
 
     try {
       let user;
-      const email: string = req.dto.email;
       user = await User.findOne({ where: { email: email } });
 
       if (!user) {
         return res.status(404).json({ message: "User not found!" });
       }
 
-      const isEqual: boolean = await bcrypt.compare(password, user.dataValues.password);
+      const isEqual: boolean = await Bcrypt.verify(password, user.dataValues.password);
       if (!isEqual) {
         return res.status(401).json({ message: "Invalid password" });
       }
@@ -116,7 +114,7 @@ export class AuthController {
         throw err;
       }
 
-      const updatedPassword = await bcrypt.hash(password, 12);
+      const updatedPassword = await Bcrypt.hash(password);
       const email = decodedToken.email;
 
       const user = await User.update(
