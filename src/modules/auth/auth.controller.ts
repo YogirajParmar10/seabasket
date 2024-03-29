@@ -6,6 +6,7 @@ import { Bcrypt, JwtHelper, GenerateOTP, Notification } from "@helpers";
 import { CreateUserDto, ForgotPasswordDto, ResetPasswordDto, SignInDto } from "./dto";
 
 import nodemailer from "nodemailer";
+import { Cart } from "@entities";
 
 const transporter = nodemailer.createTransport({
   host: "smtp.ethereal.email",
@@ -48,6 +49,12 @@ export class AuthController {
         from: "alf.thiel48@ethereal.email",
         subject: "Signup-successful",
         html: "<h1> You have successfully signed-up with seabasket</h1>",
+      });
+
+      const userId = user.dataValues.id;
+
+      const cart = await Cart.create({
+        userId: userId,
       });
     } catch (err: any) {
       if (!err.statusCode) {

@@ -46,8 +46,10 @@ export class AdminController {
 
   public getProductDetail = async (req: TRequest, res: TResponse, next: NextFunction) => {
     const { productId } = req.params;
+    const userId = req.me.id;
     try {
-      const product = await Product.findByPk(productId);
+      const product = await Product.findOne({ where: { id: productId, userId: userId } });
+
       if (!product) {
         return res.status(404).json({ message: "No product found" });
       } else {
