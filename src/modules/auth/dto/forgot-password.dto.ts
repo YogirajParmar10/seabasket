@@ -6,5 +6,5 @@ export class ForgotPasswordDto {
   @IsNotEmpty()
   @IsEmail()
   @MaxLength(Constants.EMAIL_MAX_LENGTH)
-  public email: string;
+  email: string;
 }

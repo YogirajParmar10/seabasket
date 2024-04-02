@@ -4,7 +4,7 @@ import { Constants } from "../../../configs/constants";
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(Constants.FIRST_NAME_MAX_LENGTH)
+  @MaxLength(Constants.NAME_MAX_LENGTH)
   name: string;
 
   @IsString()

@@ -2,7 +2,7 @@ import path from "path";
 import { Router } from "express";
 import { Log } from "./logger.helper";
 
-export class SFRouter {
+export class AppRouter {
   private logger = Log.getLogger(`${path.relative(process.cwd(), __dirname)}/${this.constructor.name}`);
 
   public router: Router;

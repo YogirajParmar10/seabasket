@@ -9,3 +9,4 @@ uploads/*
 !uploads/.gitkeep
 config
 liquibase/*.properties
+.vscode

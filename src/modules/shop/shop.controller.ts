@@ -1,15 +1,16 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction } from "express";
 import { TRequest, TResponse } from "@types";
-import { Product, Cart, CartItem, Reviews, Orders, OrderDetails } from "entities";
-import { CartDto, ProductByCategoryDto, SearchProductDto, ReviewsDto, OrderDto } from "./dto";
+import { Product, Cart, CartItem, Reviews, Orders, OrderDetails, User } from "entities";
+import { CartDto, ReviewsDto, OrderDto, FilterProductDto } from "./dto";
 import { Op } from "sequelize";
+import { enums } from "@types";
 
 export class ShopController {
   public getShop = async (req: TRequest, res: TResponse, next: NextFunction) => {
     try {
       const products = await Product.findAll({ order: ["price"] });
       if (!products) {
-        res.json({ message: "No Products found!" });
+        res.status(404).json({ error: "No Products found!" });
       }
       return res.status(200).json({ products: products });
     } catch (err: any) {
@@ -23,9 +24,23 @@ export class ShopController {
   public getProductDetail = async (req: TRequest, res: TResponse, next: NextFunction) => {
     const { productId } = req.params;
     try {
-      const product = await Product.findByPk(productId);
+      const product = await Product.findByPk(productId, {
+        attributes: ["id", "title", "imageUrl", "price", "description", "rating", "discount", "category", "userId"],
+        include: [
+          {
+            model: Reviews,
+            attributes: ["review"],
+            include: [
+              {
+                model: User,
+                attributes: ["name"],
+              },
+            ],
+          },
+        ],
+      });
       if (!product) {
-        return res.status(404).json({ message: "No product found" });
+        return res.status(404).json({ error: "No product found" });
       } else {
         return res.status(200).json({ product: product });
       }
@@ -37,19 +52,38 @@ export class ShopController {
     }
   };
 
-  public filterProduct = async (req: TRequest<ProductByCategoryDto>, res: TResponse, next: NextFunction) => {
-    const category = req.params.category;
-
+  public filterProduct = async (req: TRequest<FilterProductDto>, res: TResponse, next: NextFunction) => {
+    const { category, max_price, min_price, rating, discount } = req.query;
+    const filter: any = {};
     try {
+      if (category) {
+        filter.category = category;
+      }
+
+      if (rating !== undefined) {
+        filter.rating = rating;
+      }
+
+      if (min_price !== undefined && max_price !== undefined) {
+        filter.price = {
+          [Op.between]: [min_price, max_price],
+        };
+      }
+
+      if (discount !== undefined) {
+        filter.discount = discount;
+      }
+
       const products = await Product.findAll({
         where: {
-          category: category,
+          [Op.and]: [filter],
         },
       });
 
       if (!products || products.length === 0) {
-        return res.status(404).json({ message: "No product found for this category!" });
+        return res.status(404).json({ error: "No product found !" });
       }
+
       return res.status(200).json({ products: products });
     } catch (err: any) {
       if (!err.statusCode) {
@@ -59,19 +93,30 @@ export class ShopController {
     }
   };
 
-  public searchProduct = async (req: TRequest<SearchProductDto>, res: TResponse, next: NextFunction) => {
-    const { title } = req.dto;
+  public searchProduct = async (req: TRequest, res: TResponse, next: NextFunction) => {
+    const { title } = req.query;
+    const { category } = req.query;
+    let products;
 
     try {
-      const products = await Product.findAll({
-        where: {
-          title: {
-            [Op.like]: `%${title}%`,
+      if (title) {
+        products = await Product.findAll({
+          where: {
+            title: {
+              [Op.like]: `%${title}%`,
+            },
           },
-        },
-      });
+        });
+      } else {
+        products = await Product.findAll({
+          where: {
+            category: category,
+          },
+        });
+      }
+
       if (!products || products.length === 0) {
-        return res.status(404).json({ message: "No product found" });
+        return res.status(404).json({ error: "No product found" });
       }
       return res.status(200).json({ products: products });
     } catch (err: any) {
@@ -81,8 +126,54 @@ export class ShopController {
       next(err);
     }
   };
+
+  public getCategoryList = async (req: TRequest, res: TResponse, next: NextFunction) => {
+    try {
+      const categories = await Product.findAll({
+        attributes: ["category"],
+        group: ["category"],
+      });
+
+      if (!categories || categories.length === 0) {
+        return res.status(404).json({ error: "No categories found" });
+      }
+
+      const categoryList = categories.map(category => category.dataValues.category);
+
+      return res.status(200).json({ categories: categoryList });
+    } catch (err: any) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
+  };
+
+  public getTrendingProducts = async (req: TRequest, res: TResponse, next: NextFunction) => {
+    try {
+      const trendingProducts = await Product.findAll({
+        where: {
+          rating: { [Op.gte]: 4 },
+        },
+        limit: 10,
+        order: [["updatedAt", "DESC"]],
+      });
+
+      if (!trendingProducts || trendingProducts.length === 0) {
+        return res.status(404).json({ error: "No trending products found" });
+      }
+
+      return res.status(200).json({ trendingProducts: trendingProducts });
+    } catch (err: any) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
+  };
+
   public getCart = async (req: TRequest, res: TResponse, next: NextFunction) => {
-    const userId = req.me.id;
+    const userId = req.user.id;
 
     try {
       const userCart = await Cart.findOne({
@@ -115,7 +206,7 @@ export class ShopController {
   };
 
   public addToCart = async (req: TRequest<CartDto>, res: TResponse, next: NextFunction) => {
-    const userId = req.me.id;
+    const userId = req.user.id;
     const { productId, quantity } = req.dto;
 
     try {
@@ -164,7 +255,7 @@ export class ShopController {
   };
 
   public removeItemFromCart = async (req: TRequest, res: TResponse, next: NextFunction) => {
-    const userId = req.me.id;
+    const userId = req.user.id;
     const productId = req.body.productId;
 
     try {
@@ -188,40 +279,10 @@ export class ShopController {
     }
   };
 
-  public getReviews = async (req: TRequest, res: TResponse, next: NextFunction) => {
-    const { productId } = req.params;
-
-    try {
-      const product = await Product.findByPk(productId);
-
-      if (!product) {
-        return res.status(404).json("Product not found");
-      }
-
-      const reviews = await Reviews.findAll({ where: { productId: productId } });
-
-      const rating = product.dataValues.rating;
-
-      if (!reviews || reviews.length == 0) {
-        return res.status(404).json({ message: "No reviews found for this product" });
-      }
-      return res.status(200).json({
-        message: `Reviews for ${productId}`,
-        rating: rating,
-        reviews: reviews,
-      });
-    } catch (err: any) {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
-    }
-  };
-
   public postReviews = async (req: TRequest<ReviewsDto>, res: TResponse, next: NextFunction) => {
     const { review } = req.dto;
     const { productId } = req.params;
-    const { id } = req.me;
+    const { id } = req.user;
 
     try {
       const product = await Product.findByPk(productId);
@@ -235,9 +296,11 @@ export class ShopController {
         userId: id,
         productId: productId,
       });
+
       if (!postReview) {
-        return res.status(500).json("Review not created");
+        return res.status(500).json({ error: "Review not created" });
       }
+
       return res.status(200).json({ message: "Review posted" });
     } catch (err: any) {
       if (!err.statusCode) {
@@ -249,14 +312,14 @@ export class ShopController {
 
   public postOrder = async (req: TRequest<OrderDto>, res: TResponse, next: NextFunction) => {
     const { cartId } = req.dto;
-    const userId = req.me.id;
+    const userId = req.user.id;
 
     try {
       const cartItems = await CartItem.findAll({ where: { cartId: cartId }, attributes: ["productId", "quantity"] });
 
       const order = await Orders.create({
         userId: userId,
-        status: "Order confirmed",
+        status: enums.OrderStatus.Confirmed,
       });
 
       const orderId = order.dataValues.id;
@@ -287,7 +350,7 @@ export class ShopController {
   };
 
   public getOrders = async (req: TRequest, res: TResponse, next: NextFunction) => {
-    const userId = req.me.id;
+    const userId = req.user.id;
 
     try {
       const orders = await Orders.findAll({
@@ -298,6 +361,9 @@ export class ShopController {
           attributes: ["productId", "quantity"],
         },
       });
+      if (!orders) {
+        return res.status(404).json({ message: "You haven't ordered yet!" });
+      }
       return res.status(200).json(orders);
     } catch (err: any) {
       if (!err.statusCode) {
@@ -309,20 +375,34 @@ export class ShopController {
 
   public getOrderDetail = async (req: TRequest, res: TResponse, next: NextFunction) => {
     const orderId = req.params.orderId;
+    const action = req.query.action;
 
     try {
-      const order = await OrderDetails.findAll({
-        where: { orderId: orderId },
-        attributes: ["productId", "quantity", "createdAt"],
-      });
+      if (action === "cancel") {
+        const order = await Orders.update(
+          {
+            status: enums.OrderStatus.Cancelled,
+            isCancelled: true,
+          },
+          { where: { id: orderId } },
+        );
+        if (!order) {
+          return res.status(500).json({ error: "Internal Server error" });
+        } else {
+          return res.status(200).json({ message: "Order cancelled" });
+        }
+      } else {
+        const order = await OrderDetails.findAll({
+          where: { orderId: orderId },
+          attributes: ["productId", "quantity", "createdAt"],
+        });
 
-      const orderStatus = await Orders.findOne({ where: { id: orderId }, attributes: ["status"] });
-
-      if (!order) {
-        return res.status(404).json({ message: "No order found!" });
+        if (!order) {
+          return res.status(404).json({ message: "No order found!" });
+        }
+        const orderStatus = await Orders.findOne({ where: { id: orderId }, attributes: ["status"] });
+        return res.status(200).json({ orderStatus, order });
       }
-
-      return res.status(200).json({ orderStatus, order });
     } catch (err: any) {
       if (!err.statusCode) {
         err.statusCode = 500;

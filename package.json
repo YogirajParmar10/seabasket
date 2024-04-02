@@ -7,7 +7,7 @@
     "tsc": "tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0",
     "lint-auto-fix": "eslint . --fix --ext .js,.jsx,.ts,.tsx",
-    "start": "tsc && tsc-alias && nodemon node dist src/server.ts",
+    "start": "tsc && tsc-alias && nodemon node dist ",
     "build": "tsc && tsc-alias",
     "env": "sync-dotenv",
     "postinstall": "husky install",

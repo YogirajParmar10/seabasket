@@ -1,5 +1,4 @@
 import { DataTypes } from "sequelize";
-
 import sequelize from "configs/db";
 
 export const User = sequelize.define("users", {
@@ -25,5 +24,10 @@ export const User = sequelize.define("users", {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
+  },
+  isVerified: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
   },
 });

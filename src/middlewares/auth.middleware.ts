@@ -1,4 +1,4 @@
-import { Me, TRequest, TResponse } from "@types";
+import { UserInfo, TRequest, TResponse } from "@types";
 import { User } from "@entities";
 import { JwtHelper } from "@helpers";
 
@@ -13,7 +13,7 @@ export class AuthMiddleware {
           const user = await User.findByPk(tokenInfo.id);
 
           if (user) {
-            req.me = user.toJSON() as Me;
+            req.user = user.toJSON() as UserInfo;
             next();
           } else {
             res.status(401).json({ error: "Unauthorized", code: 401 });

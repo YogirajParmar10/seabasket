@@ -31,3 +31,6 @@ export const Reviews = sequelize.define("reviews", {
     primaryKey: true,
   },
 });
+
+Product.hasMany(Reviews);
+Reviews.belongsTo(User);

@@ -58,10 +58,6 @@ class Env {
   @IsNotEmpty()
   @IsString()
   public twilioNumber: string;
-
-  @IsNotEmpty()
-  @IsString()
-  public domain: string;
 }
 
 export const env = new Env();
@@ -80,4 +76,3 @@ env.smtpPass = process.env.SMTP_PASS;
 env.twilioSID = process.env.TWILIO_SID;
 env.twilioToken = process.env.TWILIO_TOKEN;
 env.twilioNumber = process.env.TWILIO_NUMBER;
-env.domain = process.env.DOMAIN;

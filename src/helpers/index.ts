@@ -5,7 +5,5 @@ export * from "./handle-unhandled-promise.helper";
 export * from "./inject.cls";
 export * from "./jwt.helper";
 export * from "./logger.helper";
-export * from "./notification.helper";
-export * from "./permissions.helper";
-export * from "./sf-router";
+export * from "./router.helper";
 export * from "./validate";

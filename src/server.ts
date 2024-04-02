@@ -4,10 +4,7 @@ import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
-import methodOverride from "method-override";
-import * as l10n from "jm-ez-l10n";
 import { env } from "@configs";
-import { destructPager } from "middlewares";
 import { EnvValidator, HandleUnhandledPromise, Log } from "@helpers";
 import "reflect-metadata";
 import Routes from "./routes";
@@ -35,19 +32,9 @@ export default class App {
     this.app.use(morgan("tiny"));
     this.app.use(compression());
 
-    // Enable DELETE and PUT
-    this.app.use(methodOverride());
-
-    // Translation
-    l10n.setTranslationsFile("en", "src/language/translation.en.json");
-    this.app.use(l10n.enableL10NExpress);
-
     // Body Parsing
     this.app.use(json({ limit: "50mb" }));
     this.app.use(urlencoded({ extended: true }));
-
-    // Destruct Pager from query string and typecast to numbers
-    this.app.use(destructPager);
 
     // Initialize Sequelize
     await sequelize.sync();

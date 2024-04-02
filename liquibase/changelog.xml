@@ -270,6 +270,31 @@
             constraintName="fk_orderDetails_products"
             referencedColumnNames="id"
             referencedTableName="products"/>
-</changeSet>
-
+    </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="10">
+        <createTable tableName="otps">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="otp" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="datetime" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="datetime" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="11">
+        <addColumn tableName="users">
+            <column name="isVerified" type="boolean" defaultValueComputed="false" >
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

@@ -7,7 +7,7 @@ export class Validator {
       const obj = this.createInstanceFromJson(objType, {
         ...req.body,
         ...req.params,
-        _me: req.me,
+        _me: req.user,
       }) as any;
       // eslint-disable-next-line consistent-return
       validate(obj).then(err => {
