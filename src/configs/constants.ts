@@ -1,7 +1,7 @@
 export class Constants {
   public static readonly ENVIRONMENTS = ["development", "stage", "production"];
 
-  public static readonly JWT_TOKEN_VERSION = "v1"; // Just increase to invalidate all sessions.
+  public static readonly JWT_TOKEN_VERSION = "v1";
 
   public static readonly FROM_EMAIL = "no-reply@example.com";
 

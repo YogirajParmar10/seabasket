@@ -1,7 +1,7 @@
-import { DataTypes } from "sequelize";
-
 import sequelize from "configs/db";
+import { DataTypes } from "sequelize";
 import { CartItem } from "./cartItem.entity";
+import { OrderDetails } from "./orderDetails.entity";
 
 export const Product = sequelize.define("product", {
   id: {

@@ -21,7 +21,6 @@ export class Log {
     });
 
     if (["production", "development"].includes(process.env.NODE_ENV)) {
-      // TODO: Replace following with Cloudwatch
       logger.add(
         new transports.Console({
           format: combine(colorize(), logFormat),

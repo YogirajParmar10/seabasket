@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
-
 import sequelize from "configs/db";
 import { User } from "./user.entity";
 import { OrderDetails } from "./orderDetails.entity";
+import { enums } from "@types";
 
 export const Orders = sequelize.define("order", {
   id: {
@@ -12,8 +12,9 @@ export const Orders = sequelize.define("order", {
     primaryKey: true,
   },
   status: {
-    type: DataTypes.STRING,
+    type: DataTypes.ENUM(...Object.values(enums.OrderStatus)),
     allowNull: false,
+    defaultValue: enums.OrderStatus.Pending,
   },
   isCancelled: {
     type: DataTypes.BOOLEAN,

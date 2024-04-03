@@ -13,6 +13,6 @@ export class AppRouter {
   }
 
   protected initRoutes() {
-    this.logger.error("`initRoutes` is not implemented!");
+    this.logger.error("initRoutes is not implemented!");
   }
 }

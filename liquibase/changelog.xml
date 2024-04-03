@@ -297,4 +297,16 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="12">
+    <sql>CREATE TYPE order_status_enum AS ENUM ('confirmed', 'pending', 'shipped', 'delivered', 'cancelled');</sql>    </changeSet>
+   <changeSet author="Yogirajsinh Parmar" id="13">
+    <modifyDataType
+        tableName="orders"
+        columnName="status"
+        newDataType="order_status_enum"
+    />
+    </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="14">
+        <sql>ALTER TABLE orders ALTER COLUMN status SET DEFAULT 'pending'::order_status_enum;</sql>
+    </changeSet>
 </databaseChangeLog>

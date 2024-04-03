@@ -1,7 +1,6 @@
 import { IsIn, IsInt, IsNotEmpty, IsString, Max, Min } from "class-validator";
 import dotenv from "dotenv";
 import { Constants } from "./constants";
-import { Dialect } from "sequelize";
 
 dotenv.config();
 

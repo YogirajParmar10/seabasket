@@ -1,9 +1,8 @@
 import { NextFunction } from "express";
-import { TRequest, TResponse } from "@types";
-import { Product, Cart, CartItem, Reviews, Orders, OrderDetails, User } from "entities";
+import { TRequest, TResponse, enums } from "@types";
+import { Product, Cart, CartItem, Reviews, Orders, OrderDetails, User } from "@entities";
 import { CartDto, ReviewsDto, OrderDto, FilterProductDto } from "./dto";
 import { Op } from "sequelize";
-import { enums } from "@types";
 
 export class ShopController {
   public getShop = async (req: TRequest, res: TResponse, next: NextFunction) => {
@@ -325,7 +324,6 @@ export class ShopController {
 
       const order = await Orders.create({
         userId: userId,
-        status: enums.OrderStatus.Confirmed,
       });
 
       const orderId = order.dataValues.id;
@@ -365,11 +363,18 @@ export class ShopController {
         include: {
           model: OrderDetails,
           attributes: ["productId", "quantity"],
+          include: [
+            {
+              model: Product,
+              attributes: ["price"],
+            },
+          ],
         },
       });
       if (!orders) {
         return res.status(404).json({ message: "You haven't ordered yet!" });
       }
+
       return res.status(200).json(orders);
     } catch (err: any) {
       if (!err.statusCode) {
@@ -382,6 +387,7 @@ export class ShopController {
   public getOrderDetail = async (req: TRequest, res: TResponse, next: NextFunction) => {
     const orderId = req.params.orderId;
     const action = req.query.action;
+    let totalPrice = 0;
 
     try {
       if (action === "cancel") {
@@ -398,16 +404,31 @@ export class ShopController {
           return res.status(200).json({ message: "Order cancelled" });
         }
       } else {
-        const order = await OrderDetails.findAll({
+        const orderDetails = await OrderDetails.findAll({
           where: { orderId: orderId },
-          attributes: ["productId", "quantity", "createdAt"],
+          attributes: ["productId", "quantity"],
+          include: [
+            {
+              model: Product,
+              attributes: ["price"],
+            },
+          ],
         });
 
-        if (!order) {
+        if (!orderDetails || orderDetails.length === 0) {
           return res.status(404).json({ message: "No order found!" });
         }
-        const orderStatus = await Orders.findOne({ where: { id: orderId }, attributes: ["status"] });
-        return res.status(200).json({ orderStatus, order });
+
+        orderDetails.forEach(orderDetail => {
+          totalPrice += orderDetail.dataValues.quantity * orderDetail.dataValues.product.price;
+        });
+
+        const orderStatus = await Orders.findOne({
+          where: { id: orderId },
+          attributes: ["status"],
+        });
+
+        return res.status(200).json({ orderStatus, orderDetails, totalPrice });
       }
     } catch (err: any) {
       if (!err.statusCode) {

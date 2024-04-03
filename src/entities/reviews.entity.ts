@@ -1,7 +1,6 @@
 import sequelize from "configs/db";
 import { DataTypes } from "sequelize";
-import { User } from "./user.entity";
-import { Product } from "./product.entity";
+import { User, Product } from "entities";
 
 export const Reviews = sequelize.define("reviews", {
   id: {

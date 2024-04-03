@@ -5,3 +5,4 @@ export * from "./cartItem.entity";
 export * from "./reviews.entity";
 export * from "./order.entity";
 export * from "./orderDetails.entity";
+export * from "./otp.entity";

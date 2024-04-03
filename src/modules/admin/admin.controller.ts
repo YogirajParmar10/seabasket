@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction } from "express";
 import { TRequest, TResponse } from "@types";
-import { Product } from "entities";
+import { Product } from "@entities";
 import { CreateProductDto, FilterProductDto, UpdateProductDto } from "./dto";
 import { Op } from "sequelize";
 

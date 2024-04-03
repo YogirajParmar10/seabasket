@@ -20,13 +20,3 @@ export interface TRequest<T = any> extends Request {
 export interface TResponse extends Response {
   status: any;
 }
-
-export enum EStatus {
-  Active = "Active",
-  Inactive = "Inactive",
-}
-
-export enum EStatusYN {
-  Yes = "Yes",
-  No = "No",
-}

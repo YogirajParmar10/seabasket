@@ -1,14 +1,12 @@
 import { NextFunction } from "express";
 import { JwtPayload } from "jsonwebtoken";
 import { TRequest, TResponse } from "@types";
-import { User } from "entities";
+import { User, Otp, Cart } from "@entities";
 import { Bcrypt, JwtHelper, GenerateOTP } from "@helpers";
 import { CreateUserDto, ForgotPasswordDto, ResetPasswordDto, SignInDto, UpdateProfileDto } from "./dto";
 import { env } from "configs";
 import nodemailer from "nodemailer";
-import { Cart } from "@entities";
 import twilio from "twilio";
-import { Otp } from "entities/otp.entity";
 import { Op } from "sequelize";
 
 const client = twilio(env.twilioSID, env.twilioToken);
