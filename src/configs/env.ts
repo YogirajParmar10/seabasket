@@ -1,10 +1,14 @@
 import { IsIn, IsInt, IsNotEmpty, IsString, Max, Min } from "class-validator";
 import dotenv from "dotenv";
 import { Constants } from "./constants";
+import { Dialect } from "sequelize";
 
 dotenv.config();
 
 class Env {
+  @IsNotEmpty()
+  public dbDialect: any;
+
   @IsInt()
   @Min(2000)
   @Max(9999)
@@ -62,6 +66,7 @@ class Env {
 
 export const env = new Env();
 
+env.dbDialect = process.env.DB_DIALECT;
 env.dbName = process.env.DB_NAME;
 env.dbHost = process.env.DB_HOST;
 env.dbUser = process.env.DB_USER;
