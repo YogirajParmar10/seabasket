@@ -1,7 +1,7 @@
 import { RouterDelegates } from "@types";
 import { InjectCls, AppRouter, Validator } from "@helpers";
 import { AuthMiddleware } from "@middlewares";
-import { CreateUserDto, ForgotPasswordDto, ResetPasswordDto, SignInDto, UpdateProfileDto } from "./dto";
+import { CreateUserDto, ForgotPasswordDto, ResetPasswordDto, SignInDto, UpdateProfileDto, VerifyUserDto } from "./dto";
 import { AuthController } from "./auth.controller";
 
 export class AuthRouter extends AppRouter implements RouterDelegates {
@@ -17,7 +17,7 @@ export class AuthRouter extends AppRouter implements RouterDelegates {
     this.router.post("/forgot-password", Validator.validate(ForgotPasswordDto), this.userController.forgotPassword);
     this.router.post("/reset-password/:token", Validator.validate(ResetPasswordDto), this.userController.resetPassword);
     this.router.post("/send-otp", this.userController.sendOtp);
-    this.router.post("/verify", this.userController.verifyUser);
+    this.router.post("/verify", Validator.validate(VerifyUserDto), this.userController.verifyUser);
 
     // update profile
     this.router.put("/profile", Validator.validate(UpdateProfileDto), this.authMiddleware.auth, this.userController.updateProfile);

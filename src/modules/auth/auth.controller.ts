@@ -3,7 +3,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { TRequest, TResponse } from "@types";
 import { User, Otp, Cart } from "@entities";
 import { Bcrypt, JwtHelper, GenerateOTP } from "@helpers";
-import { CreateUserDto, ForgotPasswordDto, ResetPasswordDto, SignInDto, UpdateProfileDto } from "./dto";
+import { CreateUserDto, ForgotPasswordDto, ResetPasswordDto, SignInDto, UpdateProfileDto, VerifyUserDto } from "./dto";
 import { env } from "configs";
 import nodemailer from "nodemailer";
 import twilio from "twilio";
@@ -239,7 +239,7 @@ export class AuthController {
     }
   };
 
-  public verifyUser = async (req: TRequest, res: TResponse, next: NextFunction) => {
+  public verifyUser = async (req: TRequest<VerifyUserDto>, res: TResponse, next: NextFunction) => {
     const { otp, email } = req.body;
 
     const verification_otp = await Otp.findOne({ where: { email: email } });

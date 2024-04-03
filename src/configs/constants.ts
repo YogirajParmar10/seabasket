@@ -19,7 +19,5 @@ export class Constants {
 
   public static readonly PRODUCT_TITLE_MAX_LENGTH = 15;
 
-  public static readonly OTP_EXPIRY = 300;
-
   public static readonly OTP_LENGTH = 6;
 }
