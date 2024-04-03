@@ -9,6 +9,7 @@ import nodemailer from "nodemailer";
 import { Cart } from "@entities";
 import twilio from "twilio";
 import { Otp } from "entities/otp.entity";
+import { Op } from "sequelize";
 
 const client = twilio(env.twilioSID, env.twilioToken);
 
@@ -26,7 +27,7 @@ export class AuthController {
     const { email, name, password, mobile } = req.dto;
 
     const existingUser = await User.findOne({
-      where: { email: email },
+      where: { [Op.or]: [{ email: email }, { mobile: mobile }] },
     });
 
     if (existingUser) {
