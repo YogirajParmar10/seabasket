@@ -174,6 +174,7 @@ export class ShopController {
 
   public getCart = async (req: TRequest, res: TResponse, next: NextFunction) => {
     const userId = req.user.id;
+    let totalPrice = 0;
 
     try {
       const userCart = await Cart.findOne({
@@ -192,11 +193,16 @@ export class ShopController {
           },
         ],
       });
-      if (!userCart) {
-        return { error: "Cart not found for user" };
+
+      await userCart.dataValues.cartItems.forEach((cartItem: any) => {
+        totalPrice += cartItem.quantity * cartItem.product.price;
+      });
+
+      if (userCart.dataValues.cartItems.length == 0) {
+        return res.json({ cart: userCart, message: "cart is empty" });
       }
 
-      return res.status(200).json({ Cart: userCart });
+      return res.status(200).json({ Cart: userCart, totalPrice: totalPrice });
     } catch (err: any) {
       if (!err.statusCode) {
         err.statusCode = 500;
