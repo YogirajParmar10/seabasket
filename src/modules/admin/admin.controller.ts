@@ -66,6 +66,7 @@ export class AdminController {
 
   public filterProduct = async (req: TRequest<FilterProductDto>, res: TResponse, next: NextFunction) => {
     const { category, max_price, min_price, rating, discount } = req.query;
+    const userId = req.user.id;
     const filter: any = {};
     try {
       if (category) {
@@ -89,6 +90,7 @@ export class AdminController {
       const products = await Product.findAll({
         where: {
           [Op.and]: [filter],
+          userId: userId,
         },
       });
 

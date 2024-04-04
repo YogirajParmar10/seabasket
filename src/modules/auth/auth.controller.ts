@@ -171,11 +171,26 @@ export class AuthController {
   public updateProfile = async (req: TRequest<UpdateProfileDto>, res: TResponse, next: NextFunction) => {
     const { email, mobile, name } = req.dto;
     const userId = req.user.id;
+    let existingUser;
 
     try {
       const user = await User.findByPk(userId);
       if (!user) {
         return res.status(404).json({ message: "Unauthorized" });
+      }
+
+      if (email === undefined) {
+        existingUser = await User.findOne({
+          where: { mobile: mobile },
+        });
+      } else if (mobile === undefined) {
+        existingUser = await User.findOne({
+          where: { email: email },
+        });
+      }
+
+      if (existingUser) {
+        return res.status(400).json({ message: "User already registered" });
       }
 
       await User.update(

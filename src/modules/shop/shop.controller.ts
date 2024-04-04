@@ -97,6 +97,10 @@ export class ShopController {
     const { category } = req.query;
     let products;
 
+    if (!title && !category) {
+      return res.status(400).json({ error: "search must include category or product title" });
+    }
+
     try {
       if (title) {
         products = await Product.findAll({
@@ -371,7 +375,7 @@ export class ShopController {
           ],
         },
       });
-      if (!orders) {
+      if (!orders || orders.length === 0) {
         return res.status(404).json({ message: "You haven't ordered yet!" });
       }
 
@@ -387,9 +391,15 @@ export class ShopController {
   public getOrderDetail = async (req: TRequest, res: TResponse, next: NextFunction) => {
     const orderId = req.params.orderId;
     const action = req.query.action;
+    const userId = req.user.id;
     let totalPrice = 0;
 
     try {
+      const order = await Orders.findByPk(orderId);
+
+      if (order.dataValues.userId !== userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
       if (action === "cancel") {
         const order = await Orders.update(
           {
