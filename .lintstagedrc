@@ -1,0 +1,4 @@
+{
+  "./**/*.{js,jsx,ts,tsx,json,md}": ["yarn pretty:check"],
+  "./**/*.{js,jsx,ts,tsx}": ["yarn lint"]
+}

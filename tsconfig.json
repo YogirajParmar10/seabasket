@@ -1,0 +1,28 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "esModuleInterop": true,
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "noImplicitAny": true,
+    "paths": {
+      "@entities": ["./entities"],
+      "@helpers": ["./helpers"],
+      "@types": ["./types"],
+      "@modules": ["./modules"],
+      "@middlewares": ["./middlewares"],
+      "@modules/*": ["./modules/*"],
+      "@configs": ["./configs"],
+      "@acl": ["./acl"]
+    }
+  },
+  "emitDecoratorMetadata": true,
+  "experimentalDecorators": true,
+  "include": ["src/**/*.ts", "src/types/types.ts", "src/types/sf-router.delegates.ts"],
+  "exclude": ["node_modules"]
+}

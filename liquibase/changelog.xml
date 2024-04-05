@@ -1,0 +1,312 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+     <changeSet author="Yogirajsinh Parmar" id="1">
+        <createTable tableName="users">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mobile" type="varchar(25)">
+            </column>
+            <column name="isActive" type="boolean" defaultValueComputed="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="datetime" defaultValueComputed="now()" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="datetime" defaultValueComputed="now()"/>
+        </createTable>
+        <createIndex indexName="idx_email" tableName="users">
+            <column name="email"/>
+        </createIndex>
+        <createIndex indexName="idx_isActive" tableName="users">
+            <column name="isActive"/>
+        </createIndex>
+        <rollback>
+            <dropTable tableName="users"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="2">
+        <createTable tableName="products">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="imageUrl" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(25)">
+            </column>
+                <column name="rating" type="int" defaultValueComputed="0">
+                <constraints nullable="false"/>
+            </column>
+                <column name="discount" type="int" defaultValueComputed="0">
+                <constraints nullable="false"/>
+            </column>
+                <column name="category" type="varchar(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="datetime" defaultValueComputed="now()" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="datetime" defaultValueComputed="now()"/>
+            <column name="userId" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+            baseTableName="products"
+            baseColumnNames="userId"
+            constraintName="fk_product_userId"
+            referencedTableName="users"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+        <createIndex indexName="idx_title" tableName="products">
+            <column name="title"/>
+        </createIndex>
+        <createIndex indexName="idx_category" tableName="products">
+            <column name="category"/>
+        </createIndex>
+        <rollback>
+            <dropTable tableName="products"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="Yogirajsinh Parmar" id="3">
+        <createTable tableName="carts">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="createdAt" type="datetime" defaultValueComputed="now()" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="datetime" defaultValueComputed="now()"/>
+            <column name="userId" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+            baseTableName="carts"
+            baseColumnNames="userId"
+            constraintName="fk_cart_userId"
+            referencedTableName="users"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+        <rollback>
+            <dropTable tableName="carts"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="Yogirajsinh Parmar" id="4">
+        <createTable tableName="cartItems">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="quantity" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="productId" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cartId" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="datetime" defaultValueComputed="now()" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="datetime" defaultValueComputed="now()"/>
+        </createTable>
+        <addForeignKeyConstraint
+            baseTableName="cartItems"
+            baseColumnNames="productId"
+            constraintName="fk_cartItem_productId"
+            referencedTableName="products"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+        <addForeignKeyConstraint
+            baseTableName="cartItems"
+            baseColumnNames="cartId"
+            constraintName="fk_cartItem_cartId"
+            referencedTableName="carts"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+        <rollback>
+            <dropTable tableName="cartItems"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="5">
+        <addUniqueConstraint
+            constraintName="pk_cartitem"
+            tableName="cartItems"
+            columnNames="productId,cartId"/>
+    </changeSet>
+   
+   <changeSet author="Yogirajsinh Parmar" id="6">
+        <createTable tableName="reviews">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="review" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="productId" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="userId" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+            baseTableName="reviews"
+            baseColumnNames="productId"
+            constraintName="fk_reviews_productId"
+            referencedTableName="products"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+        <addForeignKeyConstraint
+            baseTableName="reviews"
+            baseColumnNames="userId"
+            constraintName="fk_reviews_userId"
+            referencedTableName="users"
+            referencedColumnNames="id"
+            onDelete="CASCADE"
+            onUpdate="CASCADE"/>
+        <rollback>
+            <dropTable tableName="reviews"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="7">
+        <addUniqueConstraint
+            constraintName="pk_reviews"
+            tableName="reviews"
+            columnNames="productId,userId"/>
+        <addColumn tableName="reviews">
+            <column name="createdAt" type="datetime" defaultValueComputed="now()" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="datetime" defaultValueComputed="now()"/>
+        </addColumn>
+    </changeSet>
+   <changeSet author="Yogirajsinh Parmar" id="8">
+    <createTable tableName="orders">
+        <column name="id" type="int" autoIncrement="true">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+        <column name="userId" type="int">
+            <constraints nullable="false"/>
+        </column>
+        <column name="status" type="varchar(25)">
+            <constraints nullable="true"/>
+        </column>
+        <column name="isCancelled" type="boolean" defaultValueComputed="false">
+            <constraints nullable="false"/>
+        </column>
+        <column name="createdAt" type="datetime" defaultValueComputed="now()">
+            <constraints nullable="false"/>
+        </column>
+        <column name="updatedAt" type="datetime" defaultValueComputed="now()">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+        <addForeignKeyConstraint 
+            baseColumnNames="userId"
+            baseTableName="orders"
+            constraintName="fk_orders_users"
+            referencedColumnNames="id"
+            referencedTableName="users"/>
+    </changeSet>
+
+    <changeSet author="Yogirajsinh Parmar" id="9">
+    <createTable tableName="orderDetails">
+        <column name="id" type="int" autoIncrement="true">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+        <column name="orderId" type="int">
+            <constraints nullable="false"/>
+        </column>
+        <column name="productId" type="int">
+            <constraints nullable="false"/>
+        </column>
+        <column name="quantity" type="int">
+            <constraints nullable="false"/>
+        </column>
+        <column name="createdAt" type="datetime" defaultValueComputed="now()">
+            <constraints nullable="false"/>
+        </column>
+        <column name="updatedAt" type="datetime" defaultValueComputed="now()">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+        <addForeignKeyConstraint 
+            baseColumnNames="orderId"
+            baseTableName="orderDetails"
+            constraintName="fk_orderDetails_orders"
+            referencedColumnNames="id"
+            referencedTableName="orders"/>
+        <addForeignKeyConstraint 
+            baseColumnNames="productId"
+            baseTableName="orderDetails"
+            constraintName="fk_orderDetails_products"
+            referencedColumnNames="id"
+            referencedTableName="products"/>
+    </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="10">
+        <createTable tableName="otps">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="otp" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="datetime" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="datetime" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="11">
+        <addColumn tableName="users">
+            <column name="isVerified" type="boolean" defaultValueComputed="false" >
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="12">
+    <sql>CREATE TYPE order_status_enum AS ENUM ('confirmed', 'pending', 'shipped', 'delivered', 'cancelled');</sql>    </changeSet>
+   <changeSet author="Yogirajsinh Parmar" id="13">
+    <modifyDataType
+        tableName="orders"
+        columnName="status"
+        newDataType="order_status_enum"
+    />
+    </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="14">
+        <sql>ALTER TABLE orders ALTER COLUMN status SET DEFAULT 'pending'::order_status_enum;</sql>
+    </changeSet>
+</databaseChangeLog>
