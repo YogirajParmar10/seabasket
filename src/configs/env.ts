@@ -1,6 +1,5 @@
-import { IsIn, IsInt, IsNotEmpty, IsString, Max, Min } from "class-validator";
+import { IsInt, IsNotEmpty, IsString, Max, Min } from "class-validator";
 import dotenv from "dotenv";
-import { Constants } from "./constants";
 
 dotenv.config();
 
@@ -29,10 +28,6 @@ class Env {
 
   @IsNotEmpty()
   public dbPassword: string;
-
-  @IsNotEmpty()
-  @IsIn(Constants.ENVIRONMENTS)
-  public nodeEnv: string;
 
   @IsNotEmpty()
   @IsInt()
@@ -72,7 +67,6 @@ env.dbUser = process.env.DB_USER;
 env.dbPort = +(process.env.DB_PORT || 3306);
 env.dbPassword = process.env.DB_PASSWORD;
 env.port = +process.env.PORT;
-env.nodeEnv = process.env.NODE_ENV;
 env.smtpHost = process.env.SMTP_HOST;
 env.smtpPort = +process.env.SMTP_PORT;
 env.smtpUser = process.env.SMTP_USER;
