@@ -32,6 +32,8 @@
     "class-validator": "^0.14.0",
     "compression": "^1.7.4",
     "dotenv": "^16.3.0",
+    "ejs": "^3.1.9",
+    "stripe": "^14.24.0",
     "email-templates": "^11.1.1",
     "eslint": "^8.43.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
