@@ -3,6 +3,9 @@ import { TRequest, TResponse, enums } from "@types";
 import { Product, Cart, CartItem, Reviews, Orders, OrderDetails, User } from "@entities";
 import { CartDto, ReviewsDto, OrderDto, FilterProductDto } from "./dto";
 import { Op } from "sequelize";
+import Stripe from "stripe";
+import {env} from "configs";
+import { log } from "winston";
 
 export class ShopController {
   public getShop = async (req: TRequest, res: TResponse, next: NextFunction) => {
@@ -322,9 +325,50 @@ export class ShopController {
   public postOrder = async (req: TRequest<OrderDto>, res: TResponse, next: NextFunction) => {
     const { cartId } = req.dto;
     const userId = req.user.id;
+    const lineItems = [];
+
+    const stripe = new Stripe(env.stripePrivate);
 
     try {
       const cartItems = await CartItem.findAll({ where: { cartId: cartId }, attributes: ["productId", "quantity"] });
+
+      for (const item of cartItems) {
+        const productId = item.dataValues.productId;
+
+        const product = await Product.findOne({ attributes: ["title", "price"], where: { id: productId } });
+
+        lineItems.push({
+            price_data: {
+                currency: 'inr',
+                product_data: {
+                    name: product.dataValues.title,
+                },
+                unit_amount: product.dataValues.price * 100,
+            },
+            quantity: item.dataValues.quantity
+        });
+      }
+      
+      const checkout = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        mode: "payment",
+        line_items: lineItems.map(item => {         
+          return {
+            price_data: {
+              currency: 'inr',
+              product_data: {
+                name: item.price_data.product_data.name, 
+              },
+              unit_amount: item.price_data.unit_amount,
+            },
+            quantity: item.quantity
+          }
+        }),
+        success_url: "http://localhost:3100/success",
+        cancel_url: "http://localhost:3100/reject"
+      });
+
+      const checkoutUrl = checkout.url;
 
       const order = await Orders.create({
         userId: userId,
@@ -332,23 +376,23 @@ export class ShopController {
 
       const orderId = order.dataValues.id;
 
-      await Promise.all([
-        ...cartItems.map(async product => {
-          let productId = product.dataValues.productId;
-          let quantity = product.dataValues.quantity;
-          await OrderDetails.create({
-            orderId: orderId,
-            productId: productId,
-            quantity: quantity,
-          });
-        }),
-        ...cartItems.map(async Item => {
-          const productId = Item.dataValues.productId;
-          await CartItem.destroy({ where: { productId: productId } });
-        }),
-      ]);
-
-      return res.status(200).json({ message: "Order created!" });
+        await Promise.all([
+          ...cartItems.map(async product => {
+            let productId = product.dataValues.productId;
+            let quantity = product.dataValues.quantity;
+            await OrderDetails.create({
+              orderId: orderId,
+              productId: productId,
+              quantity: quantity,
+            });
+          }),
+          ...cartItems.map(async Item => {
+            const productId = Item.dataValues.productId;
+            await CartItem.destroy({ where: { productId: productId } });
+          }),
+        ]);
+  
+        return res.status(200).json({ message: "Order created", payment_link: checkoutUrl });
     } catch (err: any) {
       if (!err.statusCode) {
         err.statusCode = 500;

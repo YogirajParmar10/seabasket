@@ -56,6 +56,11 @@ class Env {
   @IsNotEmpty()
   @IsString()
   public twilioNumber: string;
+
+
+  @IsNotEmpty()
+  @IsString()
+  public stripePrivate: string;
 }
 
 export const env = new Env();
@@ -74,3 +79,4 @@ env.smtpPass = process.env.SMTP_PASS;
 env.twilioSID = process.env.TWILIO_SID;
 env.twilioToken = process.env.TWILIO_TOKEN;
 env.twilioNumber = process.env.TWILIO_NUMBER;
+env.stripePrivate = process.env.STRIPE_PRIVATE_KEY;

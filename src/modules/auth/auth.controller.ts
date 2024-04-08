@@ -245,7 +245,7 @@ export class AuthController {
         email: email,
         otp: otp,
       });
-      return res.status(200).json({ message: "Please check your email and verify to continue" });
+      return res.status(200).json({ message: "Please check your email for otp and verify to continue" });
     } catch (err) {
       if (!err.statusCode) {
         err.statusCode = 500;

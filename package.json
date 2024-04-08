@@ -22,6 +22,10 @@
     "yarn": ">= 1.22.19",
     "node": ">=18.16.0 <=18"
   },
+  "nodemonConfig": {
+    "watch": ["src"],
+    "ext": "ts"
+  },
   "private": true,
   "author": "Seaflux Technologies",
   "license": "ISC",

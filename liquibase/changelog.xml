@@ -309,4 +309,7 @@
     <changeSet author="Yogirajsinh Parmar" id="14">
         <sql>ALTER TABLE orders ALTER COLUMN status SET DEFAULT 'pending'::order_status_enum;</sql>
     </changeSet>
+    <changeSet author="Yogirajsinh Parmar" id="15">
+        <dropColumn tableName="users" columnName="isActive"/>
+    </changeSet>
 </databaseChangeLog>
