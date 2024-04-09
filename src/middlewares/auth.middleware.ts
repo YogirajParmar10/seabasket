@@ -16,17 +16,17 @@ export class AuthMiddleware {
             req.user = user.toJSON() as UserInfo;
             next();
           } else {
-            res.status(env.statuscode.unauthorized).json({ error: "Unauthorized", code: env.statuscode.unauthorized });
+            res.status(env.statuscode.unAuthorized).json({ error: "unAuthorized", code: env.statuscode.unAuthorized });
           }
         } catch (error) {
           console.error("Error fetching user:", error);
-          res.status(env.statuscode.internal_server_error).json({ error: "Internal Server Error", code: env.statuscode.internal_server_error });
+          res.status(env.statuscode.internalServerError).json({ error: "Internal Server Error", code: env.statuscode.internalServerError });
         }
       } else {
-        res.status(env.statuscode.unauthorized).json({ error: "Unauthorized", code: env.statuscode.unauthorized });
+        res.status(env.statuscode.unAuthorized).json({ error: "unAuthorized", code: env.statuscode.unAuthorized });
       }
     } else {
-      res.status(env.statuscode.unauthorized).json({ error: "Unauthorized", code: env.statuscode.unauthorized });
+      res.status(env.statuscode.unAuthorized).json({ error: "unAuthorized", code: env.statuscode.unAuthorized });
     }
   };
 }

@@ -63,7 +63,7 @@ export class AuthController {
       });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -82,7 +82,7 @@ export class AuthController {
       }
 
       if (!user) {
-        return res.status(env.statuscode.not_found).json({ message: "Please verify your email" });
+        return res.status(env.statuscode.notFound).json({ message: "Please verify your email" });
       }
 
       if (user.dataValues.isVerified === false) {
@@ -91,7 +91,7 @@ export class AuthController {
 
       const isEqual: boolean = await Bcrypt.verify(password, user.dataValues.password);
       if (!isEqual) {
-        return res.status(env.statuscode.unauthorized).json({ message: "Invalid password" });
+        return res.status(env.statuscode.unAuthorized).json({ message: "Invalid password" });
       }
 
       const token: string = JwtHelper.encode({ id: user.dataValues.id });
@@ -100,7 +100,7 @@ export class AuthController {
       return res.status(env.statuscode.success).json({ message: "Sign-in successful", token });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -124,7 +124,7 @@ export class AuthController {
       return res.status(env.statuscode.success).json({ message: "Token is sent to your email" });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -156,13 +156,13 @@ export class AuthController {
         },
       );
       if (!user) {
-        return res.status(env.statuscode.internal_server_error).json({ message: "Password updation failed" });
+        return res.status(env.statuscode.internalServerError).json({ message: "Password updation failed" });
       }
 
       return res.status(env.statuscode.success).json({ message: "Password Updated" });
     } catch (err) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -176,7 +176,7 @@ export class AuthController {
     try {
       const user = await User.findByPk(userId);
       if (!user) {
-        return res.status(env.statuscode.not_found).json({ message: "Unauthorized" });
+        return res.status(env.statuscode.notFound).json({ message: "unAuthorized" });
       }
 
       if (email === undefined) {
@@ -204,7 +204,7 @@ export class AuthController {
       return res.status(env.statuscode.success).json({ message: "Update successful" });
     } catch (err) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -217,7 +217,7 @@ export class AuthController {
       const user = User.findOne({ where: { email: email } });
 
       if (!user) {
-        return res.status(env.statuscode.not_found).json({ message: "Please verify your email" });
+        return res.status(env.statuscode.notFound).json({ message: "Please verify your email" });
       }
 
       const otp = await GenerateOTP.generate();
@@ -248,7 +248,7 @@ export class AuthController {
       return res.status(env.statuscode.success).json({ message: "Please check your email for otp and verify to continue" });
     } catch (err) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -260,7 +260,7 @@ export class AuthController {
     const verification_otp = await Otp.findOne({ where: { email: email } });
 
     if (+otp !== verification_otp.dataValues.otp) {
-      return res.status(env.statuscode.unauthorized).json({ message: "Please verify your otp" });
+      return res.status(env.statuscode.unAuthorized).json({ message: "Please verify your otp" });
     }
     await User.update({ isVerified: true }, { where: { email: email } });
     await Otp.destroy({ where: { email: email } });

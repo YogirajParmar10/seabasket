@@ -22,7 +22,7 @@ export class AdminController {
       return res.status(201).json({ message: "Product created!" });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -40,7 +40,7 @@ export class AdminController {
       return res.status(env.statuscode.success).json({ product: products });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -53,13 +53,13 @@ export class AdminController {
       const product = await Product.findOne({ where: { id: productId, userId: userId } });
 
       if (!product) {
-        return res.status(env.statuscode.not_found).json({ message: "No product found" });
+        return res.status(env.statuscode.notFound).json({ message: "No product found" });
       } else {
         return res.status(env.statuscode.success).json({ product: product });
       }
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -96,13 +96,13 @@ export class AdminController {
       });
 
       if (!products || products.length === 0) {
-        return res.status(env.statuscode.not_found).json({ message: "No product found !" });
+        return res.status(env.statuscode.notFound).json({ message: "No product found !" });
       }
 
       return res.status(env.statuscode.success).json({ products: products });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -117,7 +117,7 @@ export class AdminController {
       const product = await Product.findByPk(productId);
 
       if (product?.dataValues.userId !== +userId!) {
-        return res.status(env.statuscode.unauthorized).json({ message: "user not authorized!" });
+        return res.status(env.statuscode.unAuthorized).json({ message: "user not authorized!" });
       }
 
       const updatedProduct = await Product.update(
@@ -135,12 +135,12 @@ export class AdminController {
         },
       );
       if (!updatedProduct) {
-        return res.status(env.statuscode.not_found).json({ message: "Failed to update product" });
+        return res.status(env.statuscode.notFound).json({ message: "Failed to update product" });
       }
       return res.status(env.statuscode.success).json({ message: "Product Updated!" });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -154,14 +154,14 @@ export class AdminController {
       const product = await Product.findByPk(productId);
 
       if (product?.dataValues.userId !== +userId!) {
-        return res.status(env.statuscode.unauthorized).json({ message: "user not authorized!" });
+        return res.status(env.statuscode.unAuthorized).json({ message: "user not authorized!" });
       }
 
       await product?.destroy();
       return res.status(env.statuscode.success).json({ message: "Product deleted!" });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }

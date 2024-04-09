@@ -122,7 +122,7 @@ env.notFound = +process.env.STATUS_CODE_NOT_FOUND;
 env.unAuthorized = +process.env.STATUS_CODE_UNAUTHORIZED;
 env.statuscode = {
   success:env.success,
-  internal_server_error: env.internalServerError,
-  not_found:env.notFound,
-  unauthorized: env.unAuthorized
+  internalServerError: env.internalServerError,
+  notFound:env.notFound,
+  unAuthorized: env.unAuthorized
 }

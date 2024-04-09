@@ -11,12 +11,12 @@ export class ShopController {
     try {
       const products = await Product.findAll({ order: ["price"] });
       if (!products) {
-        res.status(env.statuscode.not_found).json({ error: "No Products found!" });
+        res.status(env.statuscode.notFound).json({ error: "No Products found!" });
       }
       return res.status(env.statuscode.success).json({ products: products });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -41,13 +41,13 @@ export class ShopController {
         ],
       });
       if (!product) {
-        return res.status(env.statuscode.not_found).json({ error: "No product found" });
+        return res.status(env.statuscode.notFound).json({ error: "No product found" });
       } else {
         return res.status(env.success).json({ product: product });
       }
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -82,13 +82,13 @@ export class ShopController {
       });
 
       if (!products || products.length === 0) {
-        return res.status(env.statuscode.not_found).json({ error: "No product found !" });
+        return res.status(env.statuscode.notFound).json({ error: "No product found !" });
       }
 
       return res.status(env.success).json({ products: products });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -121,12 +121,12 @@ export class ShopController {
       }
 
       if (!products || products.length === 0) {
-        return res.status(env.statuscode.not_found).json({ error: "No product found" });
+        return res.status(env.statuscode.notFound).json({ error: "No product found" });
       }
       return res.status(env.success).json({ products: products });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -140,7 +140,7 @@ export class ShopController {
       });
 
       if (!categories || categories.length === 0) {
-        return res.status(env.statuscode.not_found).json({ error: "No categories found" });
+        return res.status(env.statuscode.notFound).json({ error: "No categories found" });
       }
 
       const categoryList = categories.map(category => category.dataValues.category);
@@ -148,7 +148,7 @@ export class ShopController {
       return res.status(env.success).json({ categories: categoryList });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -165,13 +165,13 @@ export class ShopController {
       });
 
       if (!trendingProducts || trendingProducts.length === 0) {
-        return res.status(env.statuscode.not_found).json({ error: "No trending products found" });
+        return res.status(env.statuscode.notFound).json({ error: "No trending products found" });
       }
 
       return res.status(env.success).json({ trendingProducts: trendingProducts });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -210,7 +210,7 @@ export class ShopController {
       return res.status(env.success).json({ Cart: userCart, totalPrice: totalPrice });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -223,12 +223,12 @@ export class ShopController {
     try {
       const product = await Product.findOne({ where: { id: productId } });
       if (!product) {
-        return res.status(env.statuscode.not_found).json({ error: "Product not found" });
+        return res.status(env.statuscode.notFound).json({ error: "Product not found" });
       }
 
       const userCart = await Cart.findOne({ where: { userId: userId } });
       if (!userCart) {
-        return res.status(env.statuscode.not_found).json({ error: "Cart not found for user" });
+        return res.status(env.statuscode.notFound).json({ error: "Cart not found for user" });
       }
 
       const cartId = userCart.dataValues.id;
@@ -259,7 +259,7 @@ export class ShopController {
       return res.status(env.success).json({ message: "Product added to cart" });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -276,7 +276,7 @@ export class ShopController {
       const existingProduct = await CartItem.findOne({ where: { productId: productId, cartId: cartId } });
 
       if (!existingProduct) {
-        return res.status(env.statuscode.not_found).json({ error: "Product not exist on this cart" });
+        return res.status(env.statuscode.notFound).json({ error: "Product not exist on this cart" });
       }
 
       await existingProduct.destroy();
@@ -284,7 +284,7 @@ export class ShopController {
       return res.status(env.success).json({ message: "Item removed" });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -299,7 +299,7 @@ export class ShopController {
       const product = await Product.findByPk(productId);
 
       if (!product) {
-        return res.status(env.statuscode.not_found).json("Product not found");
+        return res.status(env.statuscode.notFound).json("Product not found");
       }
 
       const postReview = await Reviews.create({
@@ -309,13 +309,13 @@ export class ShopController {
       });
 
       if (!postReview) {
-        return res.status(env.statuscode.internal_server_error).json({ error: "Review not created" });
+        return res.status(env.statuscode.internalServerError).json({ error: "Review not created" });
       }
 
       return res.status(env.success).json({ message: "Review posted" });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -394,7 +394,7 @@ export class ShopController {
         return res.status(env.success).json({ message: "Order created", payment_link: checkoutUrl });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -419,13 +419,13 @@ export class ShopController {
         },
       });
       if (!orders || orders.length === 0) {
-        return res.status(env.statuscode.not_found).json({ message: "You haven't ordered yet!" });
+        return res.status(env.statuscode.notFound).json({ message: "You haven't ordered yet!" });
       }
 
       return res.status(env.success).json(orders);
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -441,7 +441,7 @@ export class ShopController {
       const order = await Orders.findByPk(orderId);
 
       if (order.dataValues.userId !== userId) {
-        return res.status(env.statuscode.unauthorized).json({ message: "Unauthorized" });
+        return res.status(env.statuscode.unAuthorized).json({ message: "unAuthorized" });
       }
       if (action === "cancel") {
         const order = await Orders.update(
@@ -452,7 +452,7 @@ export class ShopController {
           { where: { id: orderId } },
         );
         if (!order) {
-          return res.status(env.statuscode.internal_server_error).json({ error: "Internal Server error" });
+          return res.status(env.statuscode.internalServerError).json({ error: "Internal Server error" });
         } else {
           return res.status(env.success).json({ message: "Order cancelled" });
         }
@@ -469,7 +469,7 @@ export class ShopController {
         });
 
         if (!orderDetails || orderDetails.length === 0) {
-          return res.status(env.statuscode.not_found).json({ message: "No order found!" });
+          return res.status(env.statuscode.notFound).json({ message: "No order found!" });
         }
 
         orderDetails.forEach(orderDetail => {
@@ -485,7 +485,7 @@ export class ShopController {
       }
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = env.statuscode.internal_server_error;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
