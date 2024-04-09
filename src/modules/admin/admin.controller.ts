@@ -36,7 +36,9 @@ export class AdminController {
         const error = new Error("No products found!");
         throw error;
       }
-
+      if (products.length === 0){
+        return res.status(env.statuscode.notFound).json({ message: "No products found!" });
+      }
       return res.status(env.statuscode.success).json({ product: products });
     } catch (err: any) {
       if (!err.statusCode) {
