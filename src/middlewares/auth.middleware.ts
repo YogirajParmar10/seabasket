@@ -1,9 +1,9 @@
 import { UserInfo, TRequest, TResponse } from "@types";
 import { User } from "@entities";
 import { JwtHelper } from "@helpers";
+import {env} from "@configs"
 
 export class AuthMiddleware {
-  constructor() {}
 
   public auth = async (req: TRequest, res: TResponse, next: () => void) => {
     if (req.headers && req.headers.authorization) {
@@ -16,17 +16,17 @@ export class AuthMiddleware {
             req.user = user.toJSON() as UserInfo;
             next();
           } else {
-            res.status(401).json({ error: "Unauthorized", code: 401 });
+            res.status(env.statuscode.unAuthorized).json({ error: "unAuthorized", code: env.statuscode.unAuthorized });
           }
         } catch (error) {
           console.error("Error fetching user:", error);
-          res.status(500).json({ error: "Internal Server Error", code: 500 });
+          res.status(env.statuscode.internalServerError).json({ error: "Internal Server Error", code: env.statuscode.internalServerError });
         }
       } else {
-        res.status(401).json({ error: "Unauthorized", code: 401 });
+        res.status(env.statuscode.unAuthorized).json({ error: "unAuthorized", code: env.statuscode.unAuthorized });
       }
     } else {
-      res.status(401).json({ error: "Unauthorized", code: 401 });
+      res.status(env.statuscode.unAuthorized).json({ error: "unAuthorized", code: env.statuscode.unAuthorized });
     }
   };
 }

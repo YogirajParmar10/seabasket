@@ -11,7 +11,7 @@ export default class Routes {
     router.use("/shop", new ShopRouter().router);
     router.all("/*", (req, res) =>
       res.status(404).json({
-        error: "ERR_URL_NOT_FOUND",
+        error: "ERR_URL_notFound",
       }),
     );
     return router;

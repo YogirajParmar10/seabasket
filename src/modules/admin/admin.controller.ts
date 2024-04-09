@@ -3,6 +3,7 @@ import { TRequest, TResponse } from "@types";
 import { Product } from "@entities";
 import { CreateProductDto, FilterProductDto, UpdateProductDto } from "./dto";
 import { Op } from "sequelize";
+import {env} from "configs"
 
 export class AdminController {
   public createProduct = async (req: TRequest<CreateProductDto>, res: TResponse, next: NextFunction) => {
@@ -21,7 +22,7 @@ export class AdminController {
       return res.status(201).json({ message: "Product created!" });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = 500;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -36,10 +37,10 @@ export class AdminController {
         throw error;
       }
 
-      return res.status(200).json({ product: products });
+      return res.status(env.statuscode.success).json({ product: products });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = 500;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -52,13 +53,13 @@ export class AdminController {
       const product = await Product.findOne({ where: { id: productId, userId: userId } });
 
       if (!product) {
-        return res.status(404).json({ message: "No product found" });
+        return res.status(env.statuscode.notFound).json({ message: "No product found" });
       } else {
-        return res.status(200).json({ product: product });
+        return res.status(env.statuscode.success).json({ product: product });
       }
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = 500;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -95,13 +96,13 @@ export class AdminController {
       });
 
       if (!products || products.length === 0) {
-        return res.status(404).json({ message: "No product found !" });
+        return res.status(env.statuscode.notFound).json({ message: "No product found !" });
       }
 
-      return res.status(200).json({ products: products });
+      return res.status(env.statuscode.success).json({ products: products });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = 500;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -116,7 +117,7 @@ export class AdminController {
       const product = await Product.findByPk(productId);
 
       if (product?.dataValues.userId !== +userId!) {
-        return res.status(401).json({ message: "user not authorized!" });
+        return res.status(env.statuscode.unAuthorized).json({ message: "user not authorized!" });
       }
 
       const updatedProduct = await Product.update(
@@ -134,12 +135,12 @@ export class AdminController {
         },
       );
       if (!updatedProduct) {
-        return res.status(404).json({ message: "Failed to update product" });
+        return res.status(env.statuscode.notFound).json({ message: "Failed to update product" });
       }
-      return res.status(200).json({ message: "Product Updated!" });
+      return res.status(env.statuscode.success).json({ message: "Product Updated!" });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = 500;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }
@@ -153,14 +154,14 @@ export class AdminController {
       const product = await Product.findByPk(productId);
 
       if (product?.dataValues.userId !== +userId!) {
-        return res.status(401).json({ message: "user not authorized!" });
+        return res.status(env.statuscode.unAuthorized).json({ message: "user not authorized!" });
       }
 
       await product?.destroy();
-      return res.status(200).json({ message: "Product deleted!" });
+      return res.status(env.statuscode.success).json({ message: "Product deleted!" });
     } catch (err: any) {
       if (!err.statusCode) {
-        err.statusCode = 500;
+        err.statusCode = env.statuscode.internalServerError;
       }
       next(err);
     }

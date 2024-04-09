@@ -1,5 +1,6 @@
 import { IsInt, IsNotEmpty, IsString, Max, Min } from "class-validator";
 import dotenv from "dotenv";
+import { StatusCode } from "./status-code";
 
 dotenv.config();
 
@@ -56,6 +57,42 @@ class Env {
   @IsNotEmpty()
   @IsString()
   public twilioNumber: string;
+
+
+  @IsNotEmpty()
+  @IsString()
+  public stripePrivate: string;
+
+  @IsNotEmpty()
+  @IsString()
+  public stripeSuccess: string;
+
+  @IsNotEmpty()
+  @IsString()
+  public stripeCancel: string;
+
+  @IsNotEmpty()
+  @IsString()
+  public currency: string;
+
+  @IsNotEmpty()
+  @IsInt()
+  public success: number;
+
+  @IsNotEmpty()
+  @IsInt()
+  public internalServerError: number;
+
+  @IsNotEmpty()
+  public statuscode: StatusCode;
+
+  @IsNotEmpty()
+  @IsInt()
+  public unAuthorized: number;
+
+  @IsNotEmpty()
+  @IsInt()
+  public notFound: number;
 }
 
 export const env = new Env();
@@ -74,3 +111,17 @@ env.smtpPass = process.env.SMTP_PASS;
 env.twilioSID = process.env.TWILIO_SID;
 env.twilioToken = process.env.TWILIO_TOKEN;
 env.twilioNumber = process.env.TWILIO_NUMBER;
+env.stripePrivate = process.env.STRIPE_PRIVATE_KEY;
+env.stripeSuccess = process.env.STRIPE_SUCCESS_URL;
+env.stripeCancel = process.env.STRIPE_CANCEL_URL;
+env.currency = process.env.CURRENCY;
+env.success = +process.env.STATUS_CODE_SUCCESS;
+env.internalServerError = +process.env.STATUS_CODE_INTERNAL_SERVER_ERROR;
+env.notFound = +process.env.STATUS_CODE_NOT_FOUND;
+env.unAuthorized = +process.env.STATUS_CODE_UNAUTHORIZED;
+env.statuscode = {
+  success:env.success,
+  internalServerError: env.internalServerError,
+  notFound:env.notFound,
+  unAuthorized: env.unAuthorized
+}
