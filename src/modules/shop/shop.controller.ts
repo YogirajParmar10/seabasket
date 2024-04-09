@@ -326,11 +326,21 @@ export class ShopController {
     const userId = req.user.id;
     const lineItems = [];
 
+    const userCart = await Cart.findByPk(userId);
+ 
+    if(userCart.dataValues.id !== cartId){
+      return res.status(env.unAuthorized).json({error:"user unauthorized" })
+    }
+
     const stripe = new Stripe(env.stripePrivate);
 
     try {
       const cartItems = await CartItem.findAll({ where: { cartId: cartId }, attributes: ["productId", "quantity"] });
-
+      
+      if(!cartItems || cartItems.length === 0){
+        return res.status(env.notFound).json({message: "Your cart is empty"})
+      }
+      
       for (const item of cartItems) {
         const productId = item.dataValues.productId;
 
