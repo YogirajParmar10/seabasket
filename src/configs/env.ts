@@ -84,7 +84,6 @@ class Env {
   public internalServerError: number;
 
   @IsNotEmpty()
-  @IsInt() 
   public statuscode: StatusCode;
 
   @IsNotEmpty()
