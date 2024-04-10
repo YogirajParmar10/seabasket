@@ -7,13 +7,52 @@ import Stripe from "stripe";
 import {env} from "configs";
 
 export class ShopController {
-  public getShop = async (req: TRequest, res: TResponse, next: NextFunction) => {
+  public getShop = async (req: TRequest<FilterProductDto>, res: TResponse, next: NextFunction) => {
     try {
-      const products = await Product.findAll({ order: ["price"] });
-      if (!products) {
-        res.status(env.statuscode.notFound).json({ error: "No Products found!" });
+      const { category, max_price, min_price, rating, discount } = req.query;
+      const filter: any = {};
+      let products;
+
+      if (category) {
+        filter.category = {
+          [Op.like]: [category],
+        };;
       }
-      return res.status(env.statuscode.success).json({ products: products });
+  
+      if (rating !== undefined) {
+        filter.rating = {
+          [Op.gte]: [rating],
+        };
+      }
+  
+      if (min_price !== undefined && max_price !== undefined) {
+        filter.price = {
+          [Op.between]: [min_price, max_price],
+        };
+      }
+  
+      if (discount !== undefined) {
+        filter.discount = {
+          [Op.gte]: [discount],
+        };;
+      }
+      
+      if (Object.keys(filter).length !== 0) {
+        products = await Product.findAll({
+          where: filter,
+          order: ["price"]
+        });
+      } else {
+        products = await Product.findAll({
+          order: ["price"],
+        }); 
+      }
+  
+      if (!products || products.length === 0) {
+        return res.status(env.statuscode.notFound).json({ error: "No products found!" });
+      }
+    
+      return res.status(env.success).json({ products: products });
     } catch (err: any) {
       if (!err.statusCode) {
         err.statusCode = env.statuscode.internalServerError;
@@ -34,7 +73,7 @@ export class ShopController {
             include: [
               {
                 model: User,
-                attributes: ["name"],
+                attributes: ["id"],
               },
             ],
           },
@@ -45,47 +84,6 @@ export class ShopController {
       } else {
         return res.status(env.success).json({ product: product });
       }
-    } catch (err: any) {
-      if (!err.statusCode) {
-        err.statusCode = env.statuscode.internalServerError;
-      }
-      next(err);
-    }
-  };
-
-  public filterProduct = async (req: TRequest<FilterProductDto>, res: TResponse, next: NextFunction) => {
-    const { category, max_price, min_price, rating, discount } = req.query;
-    const filter: any = {};
-    try {
-      if (category) {
-        filter.category = category;
-      }
-
-      if (rating !== undefined) {
-        filter.rating = rating;
-      }
-
-      if (min_price !== undefined && max_price !== undefined) {
-        filter.price = {
-          [Op.between]: [min_price, max_price],
-        };
-      }
-
-      if (discount !== undefined) {
-        filter.discount = discount;
-      }
-
-      const products = await Product.findAll({
-        where: {
-          [Op.and]: [filter],
-        },
-      });
-
-      if (!products || products.length === 0) {
-        return res.status(env.statuscode.notFound).json({ error: "No product found !" });
-      }
-
-      return res.status(env.success).json({ products: products });
     } catch (err: any) {
       if (!err.statusCode) {
         err.statusCode = env.statuscode.internalServerError;
@@ -108,14 +106,14 @@ export class ShopController {
         products = await Product.findAll({
           where: {
             title: {
-              [Op.like]: `%${title}%`,
+              [Op.iLike]: `%${title}%`,
             },
           },
         });
       } else {
         products = await Product.findAll({
           where: {
-            category: category,
+            category:  {[Op.iLike ]: `%${category}%`},
           },
         });
       }

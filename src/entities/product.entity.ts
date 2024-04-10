@@ -1,7 +1,6 @@
 import sequelize from "configs/db";
 import { DataTypes } from "sequelize";
 import { CartItem } from "./cartItem.entity";
-import { OrderDetails } from "./orderDetails.entity";
 
 export const Product = sequelize.define("product", {
   id: {
@@ -18,7 +17,7 @@ export const Product = sequelize.define("product", {
     allowNull: false,
   },
   price: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL,
     allowNull: false,
   },
   description: {
@@ -26,14 +25,14 @@ export const Product = sequelize.define("product", {
     allowNull: false,
   },
   rating: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL,
     allowNull: true,
-    defaultValue: 0,
+    defaultValue: 0.00,
   },
   discount: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL,
     allowNull: true,
-    defaultValue: 0,
+    defaultValue: 0.00,
   },
   category: {
     type: DataTypes.STRING,

@@ -1,4 +1,4 @@
-import { MinLength, IsNotEmpty, IsString, MaxLength, IsNumber, IsOptional } from "class-validator";
+import { MinLength, IsNotEmpty, IsString, MaxLength, IsUrl, IsDecimal } from "class-validator";
 import { Constants } from "@configs";
 
 export class CreateProductDto {
@@ -8,11 +8,11 @@ export class CreateProductDto {
   @MinLength(Constants.PRODUCT_TITLE_MIN_LENGTH)
   title: string;
 
-  @IsString()
+  @IsUrl()
   @IsNotEmpty()
   imageUrl: string;
 
-  @IsNumber()
+  @IsDecimal()
   @IsNotEmpty()
   price: number;
 
@@ -24,11 +24,11 @@ export class CreateProductDto {
   @IsNotEmpty()
   category!: string;
 
-  @IsString()
-  @IsOptional()
-  rating: string;
+  @IsDecimal()
+  @IsNotEmpty()
+  rating: number;
 
-  @IsString()
-  @IsOptional()
-  discount: string;
+  @IsDecimal()
+  @IsNotEmpty()
+  discount: number;
 }

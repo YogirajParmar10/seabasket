@@ -1,13 +1,13 @@
 import { NextFunction } from "express";
 import { TRequest, TResponse } from "@types";
 import { Product } from "@entities";
-import { CreateProductDto, FilterProductDto, UpdateProductDto } from "./dto";
+import { CreateProductDto, UpdateProductDto } from "./dto";
 import { Op } from "sequelize";
 import {env} from "configs"
 
 export class AdminController {
   public createProduct = async (req: TRequest<CreateProductDto>, res: TResponse, next: NextFunction) => {
-    const { title, imageUrl, price, description, category } = req.dto;
+    const { title, imageUrl, price, description, category, discount, rating } = req.dto;
     const userId = req.user.id;
 
     try {
@@ -18,6 +18,8 @@ export class AdminController {
         description: description,
         userId: userId,
         category: category,
+        discount: discount,
+        rating: rating
       });
       return res.status(201).json({ message: "Product created!" });
     } catch (err: any) {
@@ -31,15 +33,52 @@ export class AdminController {
   public getAllProducts = async (req: TRequest, res: TResponse, next: NextFunction) => {
     const userId = req.user.id;
     try {
-      const products = await Product.findAll({ where: { userId: userId }, order: ["price"] });
-      if (!products) {
-        const error = new Error("No products found!");
-        throw error;
+      const { category, max_price, min_price, rating, discount } = req.query;
+      const filter: any = {};
+      let products;
+
+      if (category) {
+        filter.category = {
+          [Op.like]: [category],
+        };;
       }
-      if (products.length === 0){
-        return res.status(env.statuscode.notFound).json({ message: "No products found!" });
+  
+      if (rating !== undefined) {
+        filter.rating = {
+          [Op.gte]: [rating],
+        };
       }
-      return res.status(env.statuscode.success).json({ product: products });
+  
+      if (min_price !== undefined && max_price !== undefined) {
+        filter.price = {
+          [Op.between]: [min_price, max_price],
+        };
+      }
+  
+      if (discount !== undefined) {
+        filter.discount = {
+          [Op.gte]: [discount],
+        };;
+      }
+      
+      if (Object.keys(filter).length !== 0) {
+        products = await Product.findAll({
+          where: {filter, id: userId},
+          order: ["price"]
+        });
+      } else {
+        products = await Product.findAll({
+          where: {
+            id: userId
+          },order: ["price"],
+        }); 
+      }
+  
+      if (!products || products.length === 0) {
+        return res.status(env.statuscode.notFound).json({ error: "No products found!" });
+      }
+    
+      return res.status(env.success).json({ products: products });
     } catch (err: any) {
       if (!err.statusCode) {
         err.statusCode = env.statuscode.internalServerError;
@@ -67,52 +106,9 @@ export class AdminController {
     }
   };
 
-  public filterProduct = async (req: TRequest<FilterProductDto>, res: TResponse, next: NextFunction) => {
-    const { category, max_price, min_price, rating, discount } = req.query;
-    const userId = req.user.id;
-    const filter: any = {};
-    try {
-      if (category) {
-        filter.category = category;
-      }
-
-      if (rating !== undefined) {
-        filter.rating = rating;
-      }
-
-      if (min_price !== undefined && max_price !== undefined) {
-        filter.price = {
-          [Op.between]: [min_price, max_price],
-        };
-      }
-
-      if (discount !== undefined) {
-        filter.discount = discount;
-      }
-
-      const products = await Product.findAll({
-        where: {
-          [Op.and]: [filter],
-          userId: userId,
-        },
-      });
-
-      if (!products || products.length === 0) {
-        return res.status(env.statuscode.notFound).json({ message: "No product found !" });
-      }
-
-      return res.status(env.statuscode.success).json({ products: products });
-    } catch (err: any) {
-      if (!err.statusCode) {
-        err.statusCode = env.statuscode.internalServerError;
-      }
-      next(err);
-    }
-  };
-
   public updateProduct = async (req: TRequest<UpdateProductDto>, res: TResponse, next: NextFunction) => {
     const { productId } = req.params;
-    const { title, imageUrl, price, description, category } = req.dto;
+    const { title, imageUrl, price, description, category, rating, discount } = req.dto;
     const userId = req.user.id;
 
     try {
@@ -129,6 +125,8 @@ export class AdminController {
           price: price,
           description: description,
           category: category,
+          rating: rating,
+          discount: discount
         },
         {
           where: {
