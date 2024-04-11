@@ -3,4 +3,6 @@ export class StatusCode {
     internalServerError: number;
     notFound: number;
     unAuthorized: number;
+    created: number;
+    conflict: number
   }

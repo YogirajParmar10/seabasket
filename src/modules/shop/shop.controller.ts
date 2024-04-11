@@ -4,16 +4,55 @@ import { Product, Cart, CartItem, Reviews, Orders, OrderDetails, User } from "@e
 import { CartDto, ReviewsDto, OrderDto, FilterProductDto } from "./dto";
 import { Op } from "sequelize";
 import Stripe from "stripe";
-import {env} from "configs";
+import { env } from "configs";
 
 export class ShopController {
-  public getShop = async (req: TRequest, res: TResponse, next: NextFunction) => {
+  public getShop = async (req: TRequest<FilterProductDto>, res: TResponse, next: NextFunction) => {
     try {
-      const products = await Product.findAll({ order: ["price"] });
-      if (!products) {
-        res.status(env.statuscode.notFound).json({ error: "No Products found!" });
+      const { category, max_price, min_price, rating, discount } = req.query;
+      const filter: any = {};
+      let products;
+
+      if (category) {
+        filter.category = {
+          [Op.like]: [category],
+        };
       }
-      return res.status(env.statuscode.success).json({ products: products });
+
+      if (rating) {
+        filter.rating = {
+          [Op.gte]: [rating],
+        };
+      }
+
+      if (min_price && max_price) {
+        filter.price = {
+          [Op.between]: [min_price, max_price],
+        };
+      }
+
+      if (discount) {
+        filter.discount = {
+          [Op.gte]: [discount],
+        };
+      }
+
+      if (Object.keys(filter).length !== 0) {
+        products = await Product.findAll({
+          where: filter,
+          order: ["price"],
+        });
+      } else {
+        products = await Product.findAll({
+          order: ["price"],
+        });
+      }
+
+      if (!products || products.length === 0) {
+        return res.status(env.statuscode.notFound).json({ message: "No products found!" });
+      }
+
+      return res.status(env.success).json({ products: products });
     } catch (err: any) {
       if (!err.statusCode) {
         err.statusCode = env.statuscode.internalServerError;
@@ -34,7 +73,7 @@ export class ShopController {
             include: [
               {
                 model: User,
-                attributes: ["name"],
+                attributes: ["id"],
               },
             ],
           },
@@ -53,54 +92,13 @@ export class ShopController {
     }
   };
 
-  public filterProduct = async (req: TRequest<FilterProductDto>, res: TResponse, next: NextFunction) => {
-    const { category, max_price, min_price, rating, discount } = req.query;
-    const filter: any = {};
-    try {
-      if (category) {
-        filter.category = category;
-      }
-
-      if (rating !== undefined) {
-        filter.rating = rating;
-      }
-
-      if (min_price !== undefined && max_price !== undefined) {
-        filter.price = {
-          [Op.between]: [min_price, max_price],
-        };
-      }
-
-      if (discount !== undefined) {
-        filter.discount = discount;
-      }
-
-      const products = await Product.findAll({
-        where: {
-          [Op.and]: [filter],
-        },
-      });
-
-      if (!products || products.length === 0) {
-        return res.status(env.statuscode.notFound).json({ error: "No product found !" });
-      }
-
-      return res.status(env.success).json({ products: products });
-    } catch (err: any) {
-      if (!err.statusCode) {
-        err.statusCode = env.statuscode.internalServerError;
-      }
-      next(err);
-    }
-  };
-
   public searchProduct = async (req: TRequest, res: TResponse, next: NextFunction) => {
     const { title } = req.query;
     const { category } = req.query;
     let products;
 
     if (!title && !category) {
-      return res.status(400).json({ error: "search must include category or product title" });
+      return res.status(env.conflict).json({ error: "search must include category or product title" });
     }
 
     try {
@@ -108,14 +106,14 @@ export class ShopController {
         products = await Product.findAll({
           where: {
             title: {
-              [Op.like]: `%${title}%`,
+              [Op.iLike]: `%${title}%`,
             },
           },
         });
       } else {
         products = await Product.findAll({
           where: {
-            category: category,
+            category: { [Op.iLike]: `%${category}%` },
           },
         });
       }
@@ -327,54 +325,54 @@ export class ShopController {
     const lineItems = [];
 
     const userCart = await Cart.findByPk(userId);
- 
-    if(userCart.dataValues.id !== cartId){
-      return res.status(env.unAuthorized).json({error:"user unauthorized" })
+
+    if (userCart.dataValues.id !== cartId) {
+      return res.status(env.unAuthorized).json({ error: "user unauthorized" });
     }
 
     const stripe = new Stripe(env.stripePrivate);
 
     try {
       const cartItems = await CartItem.findAll({ where: { cartId: cartId }, attributes: ["productId", "quantity"] });
-      
-      if(!cartItems || cartItems.length === 0){
-        return res.status(env.notFound).json({message: "Your cart is empty"})
+
+      if (!cartItems || cartItems.length === 0) {
+        return res.status(env.notFound).json({ message: "Your cart is empty" });
       }
-      
+
       for (const item of cartItems) {
         const productId = item.dataValues.productId;
 
         const product = await Product.findOne({ attributes: ["title", "price"], where: { id: productId } });
 
         lineItems.push({
-            price_data: {
-                currency: env.currency,
-                product_data: {
-                    name: product.dataValues.title,
-                },
-                unit_amount: product.dataValues.price * 100,
+          price_data: {
+            currency: env.currency,
+            product_data: {
+              name: product.dataValues.title,
             },
-            quantity: item.dataValues.quantity
+            unit_amount: product.dataValues.price * 100,
+          },
+          quantity: item.dataValues.quantity,
         });
       }
-      
+
       const checkout = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         mode: "payment",
-        line_items: lineItems.map(item => {         
+        line_items: lineItems.map(item => {
           return {
             price_data: {
               currency: env.currency,
               product_data: {
-                name: item.price_data.product_data.name, 
+                name: item.price_data.product_data.name,
               },
               unit_amount: item.price_data.unit_amount,
             },
-            quantity: item.quantity
-          }
+            quantity: item.quantity,
+          };
         }),
         success_url: env.stripeSuccess,
-        cancel_url: env.stripeCancel
+        cancel_url: env.stripeCancel,
       });
 
       const checkoutUrl = checkout.url;
@@ -385,23 +383,23 @@ export class ShopController {
 
       const orderId = order.dataValues.id;
 
-        await Promise.all([
-          ...cartItems.map(async product => {
-            let productId = product.dataValues.productId;
-            let quantity = product.dataValues.quantity;
-            await OrderDetails.create({
-              orderId: orderId,
-              productId: productId,
-              quantity: quantity,
-            });
-          }),
-          ...cartItems.map(async Item => {
-            const productId = Item.dataValues.productId;
-            await CartItem.destroy({ where: { productId: productId } });
-          }),
-        ]);
-  
-        return res.status(env.success).json({ message: "Order created", payment_link: checkoutUrl });
+      await Promise.all([
+        ...cartItems.map(async product => {
+          let productId = product.dataValues.productId;
+          let quantity = product.dataValues.quantity;
+          await OrderDetails.create({
+            orderId: orderId,
+            productId: productId,
+            quantity: quantity,
+          });
+        }),
+        ...cartItems.map(async Item => {
+          const productId = Item.dataValues.productId;
+          await CartItem.destroy({ where: { productId: productId } });
+        }),
+      ]);
+
+      return res.status(env.success).json({ message: "Order created", payment_link: checkoutUrl });
     } catch (err: any) {
       if (!err.statusCode) {
         err.statusCode = env.statuscode.internalServerError;

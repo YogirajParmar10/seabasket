@@ -29,7 +29,7 @@ export class AuthController {
     });
 
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(env.conflict).json({ message: "User already exists" });
     }
 
     try {
@@ -40,7 +40,7 @@ export class AuthController {
         password: hashedPass,
         mobile: mobile,
       });
-      res.status(201).json({
+      res.status(env.created).json({
         message: "Sign-up Successful",
       });
       const userId = user.dataValues.id;
@@ -190,7 +190,7 @@ export class AuthController {
       }
 
       if (existingUser) {
-        return res.status(400).json({ message: "User already registered" });
+        return res.status(env.conflict).json({ message: "User already registered" });
       }
 
       await User.update(

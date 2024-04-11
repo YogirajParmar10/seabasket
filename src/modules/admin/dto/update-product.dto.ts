@@ -1,4 +1,4 @@
-import { MinLength, IsNotEmpty, IsString, MaxLength, IsOptional, IsNumber } from "class-validator";
+import { MinLength, IsNotEmpty, IsString, MaxLength, IsOptional, IsNumber, IsDecimal } from "class-validator";
 import { Constants } from "@configs";
 
 export class UpdateProductDto {
@@ -12,11 +12,11 @@ export class UpdateProductDto {
   @IsOptional()
   imageUrl: string;
 
-  @IsNumber()
+  @IsDecimal()
   @IsOptional()
   price: number;
 
-  @IsString()
+  @IsDecimal()
   @IsOptional()
   description!: string;
 
@@ -24,7 +24,7 @@ export class UpdateProductDto {
   @IsOptional()
   category!: string;
 
-  @IsString()
+  @IsDecimal()
   @IsOptional()
   rating: string;
 

@@ -16,10 +16,9 @@ export class ShopRouter extends AppRouter implements RouterDelegates {
     this.router.get("/products", this.ShopController.getShop);
     this.router.get("/products/:productId", this.ShopController.getProductDetail);
     this.router.get("/search", this.ShopController.searchProduct);
-    this.router.get("/filter", Validator.validate(FilterProductDto), this.ShopController.filterProduct);
     this.router.get("/category-list", this.ShopController.getCategoryList);
     this.router.get("/trending-products", this.ShopController.getTrendingProducts);
-
+    
     //Authenticated Routes
     this.router.get("/cart", this.authMiddleware.auth, this.ShopController.getCart);
     this.router.post("/cart/add-product", Validator.validate(CartDto), this.authMiddleware.auth, this.ShopController.addToCart);
