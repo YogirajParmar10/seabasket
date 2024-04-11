@@ -93,6 +93,14 @@ class Env {
   @IsNotEmpty()
   @IsInt()
   public notFound: number;
+
+  @IsNotEmpty()
+  @IsInt()
+  public created: number;
+
+  @IsNotEmpty()
+  @IsInt()
+  public conflict: number;
 }
 
 export const env = new Env();
@@ -119,9 +127,13 @@ env.success = +process.env.STATUS_CODE_SUCCESS;
 env.internalServerError = +process.env.STATUS_CODE_INTERNAL_SERVER_ERROR;
 env.notFound = +process.env.STATUS_CODE_NOT_FOUND;
 env.unAuthorized = +process.env.STATUS_CODE_UNAUTHORIZED;
+env.created = +process.env.STATUS_CODE_CREATED;
+env.conflict = +process.env.STATUS_CODE_CONFLICT;
 env.statuscode = {
   success:env.success,
   internalServerError: env.internalServerError,
   notFound:env.notFound,
-  unAuthorized: env.unAuthorized
+  unAuthorized: env.unAuthorized,
+  created: env.created,
+  conflict: env.conflict
 }

@@ -21,7 +21,7 @@ export class AdminController {
         discount: discount,
         rating: rating
       });
-      return res.status(201).json({ message: "Product created!" });
+      return res.status(env.created).json({ message: "Product created!" });
     } catch (err: any) {
       if (!err.statusCode) {
         err.statusCode = env.statuscode.internalServerError;
@@ -39,23 +39,23 @@ export class AdminController {
 
       if (category) {
         filter.category = {
-          [Op.like]: [category],
+          [Op.iLike]: `${category}`,
         };;
       }
   
-      if (rating !== undefined) {
+      if (rating) {
         filter.rating = {
           [Op.gte]: [rating],
         };
       }
   
-      if (min_price !== undefined && max_price !== undefined) {
+      if (min_price  && max_price) {
         filter.price = {
           [Op.between]: [min_price, max_price],
         };
       }
   
-      if (discount !== undefined) {
+      if (discount) {
         filter.discount = {
           [Op.gte]: [discount],
         };;
@@ -63,13 +63,13 @@ export class AdminController {
       
       if (Object.keys(filter).length !== 0) {
         products = await Product.findAll({
-          where: {filter, id: userId},
+          where: {...filter, userId: userId},
           order: ["price"]
         });
       } else {
         products = await Product.findAll({
           where: {
-            id: userId
+            userId: userId
           },order: ["price"],
         }); 
       }

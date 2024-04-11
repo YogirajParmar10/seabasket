@@ -1,3 +1,4 @@
+import { env } from "@configs";
 import { validate } from "class-validator";
 
 export class Validator {
@@ -16,7 +17,7 @@ export class Validator {
           const _error = err[0].constraints;
           const [first] = Object.keys(_error);
           const error = _error[first];
-          return res.status(400).json({ error });
+          return res.status(env.conflict).json({ error });
         }
         req.dto = obj;
         next();
